@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migraine Predictor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background-color: #808080;
+            color: #333;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #d3d3d3;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        /* Cookie Consent Banner */
+        #cookieConsent {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            display: none;
+            z-index: 1000;
+        }
+
+        #cookieConsent button {
+            margin: 0 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #cookieConsent .accept {
+            background: #4CAF50;
+            color: white;
+        }
+
+        #cookieConsent .decline {
+            background: #f44336;
+            color: white;
+        }
+
+        /* Frequency Scale */
+        .frequency-scale {
+            margin-bottom: 30px;
+        }
+
+        .frequency-scale h2 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .frequency-options {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+        }
+
+        .frequency-option {
+            flex: 1;
+            padding: 15px 10px;
+            text-align: center;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .frequency-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .frequency-option.selected {
+            border-color: #333;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .frequency-option.freq-1 { background: linear-gradient(135deg, #22c55e, #86efac); }
+        .frequency-option.freq-2 { background: linear-gradient(135deg, #84cc16, #bef264); }
+        .frequency-option.freq-3 { background: linear-gradient(135deg, #eab308, #fde047); }
+        .frequency-option.freq-4 { background: linear-gradient(135deg, #f97316, #fdba74); }
+        .frequency-option.freq-5 { background: linear-gradient(135deg, #ef4444, #fca5a5); }
+        .frequency-option.freq-6 { background: linear-gradient(135deg, #1f1f1f, #404040); color: white; }
+
+        /* Migraine Index Display */
+        .migraine-index {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .migraine-index h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .index-value {
+            font-size: 64px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .index-scale {
+            position: relative;
+            height: 30px;
+            background: linear-gradient(to right, #22c55e, #eab308, #ef4444);
+            border-radius: 15px;
+            margin-bottom: 10px;
+        }
+
+        .index-marker {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #333;
+            border: 3px solid white;
+            border-radius: 50%;
+            top: 5px;
+            transform: translateX(-50%);
+            transition: left 0.5s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .index-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* Visual Break */
+        .visual-break {
+            height: 2px;
+            background: linear-gradient(to right, transparent, #999, transparent);
+            margin: 30px 0;
+        }
+
+        /* Advanced Mode */
+        .advanced-mode {
+            margin-bottom: 30px;
+        }
+
+        .advanced-toggle {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 15px;
+            background: #c0c0c0;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .advanced-toggle:hover {
+            background: #b0b0b0;
+        }
+
+        .advanced-toggle span {
+            font-size: 20px;
+            margin-right: 10px;
+            transition: transform 0.3s;
+        }
+
+        .advanced-toggle.open span {
+            transform: rotate(45deg);
+        }
+
+        .advanced-content {
+            display: none;
+            padding: 20px;
+            background: #c8c8c8;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .advanced-content.show {
+            display: block;
+        }
+
+        .advanced-item {
+            margin-bottom: 25px;
+        }
+
+        .advanced-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .yes-no-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .yes-no-buttons button {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #999;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .yes-no-buttons button:hover {
+            background: #f0f0f0;
+        }
+
+        .yes-no-buttons button.active {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 8px;
+            border-radius: 5px;
+            background: linear-gradient(to right, #22c55e, #eab308, #ef4444);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #333;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #333;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .slider-value {
+            font-weight: bold;
+            font-size: 18px;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #999;
+            border-radius: 5px;
+            background: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #999;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .sub-question {
+            margin-top: 15px;
+            padding-left: 20px;
+            display: none;
+        }
+
+        .sub-question.show {
+            display: block;
+        }
+
+        .info-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background: #666;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 18px;
+            font-size: 12px;
+            margin-left: 5px;
+            cursor: help;
+            position: relative;
+        }
+
+        .info-icon:hover .tooltip {
+            display: block;
+        }
+
+        .tooltip {
+            display: none;
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            width: 250px;
+            font-size: 12px;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #333;
+        }
+
+        /* Thin Grey Line */
+        .thin-line {
+            height: 1px;
+            background: #999;
+            margin: 30px 0;
+        }
+
+        /* Factor Displays */
+        .factors-section h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .factor-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #c8c8c8;
+            border-radius: 8px;
+        }
+
+        .factor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .factor-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .factor-value {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .factor-scale {
+            position: relative;
+            height: 15px;
+            background: linear-gradient(to right, #22c55e, #eab308, #ef4444);
+            border-radius: 8px;
+        }
+
+        .factor-marker {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #333;
+            border: 2px solid white;
+            border-radius: 50%;
+            top: 1.5px;
+            transform: translateX(-50%);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Location Input Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .modal-content p {
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #999;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .modal-content button {
+            width: 100%;
+            padding: 12px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-content button:hover {
+            background: #45a049;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        /* API Key Input */
+        .api-key-section {
+            background: #fff9e6;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 2px solid #ffd966;
+        }
+
+        .api-key-section h3 {
+            margin-bottom: 10px;
+            color: #d97706;
+        }
+
+        .api-key-section p {
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .api-key-section input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #999;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .api-key-section button {
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .api-key-section button:hover {
+            background: #45a049;
+        }
+
+        .api-key-section a {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Cookie Consent Banner -->
+    <div id="cookieConsent">
+        <p>This app uses cookies to save your preferences for future visits. Do you consent?</p>
+        <button class="accept" onclick="acceptCookies()">Accept</button>
+        <button class="decline" onclick="declineCookies()">Decline</button>
+    </div>
+
+    <div class="container">
+        <h1>Migraine Predictor</h1>
+
+        <!-- API Key Input -->
+        <div class="api-key-section" id="apiKeySection">
+            <h3>⚠️ API Key Required</h3>
+            <p>To use this app, you need a free API key from <a href="https://www.weatherapi.com/signup.aspx" target="_blank">WeatherAPI.com</a>. Your key is stored locally and never sent anywhere except WeatherAPI.com.</p>
+            <input type="text" id="apiKeyInput" placeholder="Enter your WeatherAPI.com API key">
+            <button onclick="saveApiKey()">Save API Key</button>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading" id="loadingState" style="display: none;">
+            Loading weather data
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent" style="display: none;">
+            <!-- Frequency Scale -->
+            <div class="frequency-scale">
+                <h2>How often do you typically experience migraines?</h2>
+                <div class="frequency-options">
+                    <div class="frequency-option freq-1 selected" data-freq="1" onclick="selectFrequency(1)">
+                        <div>1</div>
+                        <div style="font-size: 11px; margin-top: 5px;">0-1 per month</div>
+                    </div>
+                    <div class="frequency-option freq-2" data-freq="2" onclick="selectFrequency(2)">
+                        <div>2</div>
+                        <div style="font-size: 11px; margin-top: 5px;">1-2 per month</div>
+                    </div>
+                    <div class="frequency-option freq-3" data-freq="3" onclick="selectFrequency(3)">
+                        <div>3</div>
+                        <div style="font-size: 11px; margin-top: 5px;">2-4 per month</div>
+                    </div>
+                    <div class="frequency-option freq-4" data-freq="4" onclick="selectFrequency(4)">
+                        <div>4</div>
+                        <div style="font-size: 11px; margin-top: 5px;">4-5 per month</div>
+                    </div>
+                    <div class="frequency-option freq-5" data-freq="5" onclick="selectFrequency(5)">
+                        <div>5</div>
+                        <div style="font-size: 11px; margin-top: 5px;">5+ per month</div>
+                    </div>
+                    <div class="frequency-option freq-6" data-freq="6" onclick="selectFrequency(6)">
+                        <div>Oh God</div>
+                        <div style="font-size: 11px; margin-top: 5px;">10+ per month</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Migraine Index Display -->
+            <div class="migraine-index">
+                <h2>Current Migraine Risk Index</h2>
+                <div class="index-value" id="indexValue">--</div>
+                <div class="index-scale">
+                    <div class="index-marker" id="indexMarker"></div>
+                </div>
+                <div class="index-labels">
+                    <span>Low (0)</span>
+                    <span>Moderate (50)</span>
+                    <span>High (100)</span>
+                </div>
+            </div>
+
+            <!-- Visual Break -->
+            <div class="visual-break"></div>
+
+            <!-- Advanced Mode -->
+            <div class="advanced-mode">
+                <div class="advanced-toggle" onclick="toggleAdvanced()">
+                    <span>+</span>
+                    <strong>Advanced Mode</strong>
+                </div>
+                <div class="advanced-content" id="advancedContent">
+                    <!-- I ate today -->
+                    <div class="advanced-item">
+                        <label>
+                            I ate today
+                            <span class="info-icon">?
+                                <span class="tooltip">Skipping meals is a common migraine trigger. Not eating can cause blood sugar drops that may precipitate a migraine.</span>
+                            </span>
+                        </label>
+                        <div class="yes-no-buttons">
+                            <button onclick="setAteToday(false)" class="active">No</button>
+                            <button onclick="setAteToday(true)">Yes</button>
+                        </div>
+                        <div class="sub-question" id="ateEnoughQuestion">
+                            <label>
+                                I ate enough today
+                                <span class="info-icon">?
+                                    <span class="tooltip">Even if you ate something, inadequate caloric intake can still trigger migraines in susceptible individuals.</span>
+                                </span>
+                            </label>
+                            <div class="yes-no-buttons">
+                                <button onclick="setAteEnough(false)" class="active">No</button>
+                                <button onclick="setAteEnough(true)">Yes</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stress Level -->
+                    <div class="advanced-item">
+                        <label>
+                            Stress level today
+                            <span class="info-icon">?
+                                <span class="tooltip">Stress increases cortisol production, which can cause inflammation and brain sensitivity, triggering migraines. However, high stress doesn't guarantee a migraine.</span>
+                            </span>
+                        </label>
+                        <div class="slider-container">
+                            <span>0</span>
+                            <input type="range" min="0" max="10" value="0" id="stressSlider" oninput="updateStress(this.value)">
+                            <span>10</span>
+                            <span class="slider-value" id="stressValue">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Sleep Quality -->
+                    <div class="advanced-item">
+                        <label>
+                            Sleep quality last night
+                            <span class="info-icon">?
+                                <span class="tooltip">Poor sleep increases oxidative stress in the brain and elevates cortisol, both of which can trigger migraines. Both too little and too much sleep are triggers.</span>
+                            </span>
+                        </label>
+                        <div class="slider-container">
+                            <span>0</span>
+                            <input type="range" min="0" max="10" value="7" id="sleepSlider" oninput="updateSleep(this.value)">
+                            <span>10</span>
+                            <span class="slider-value" id="sleepValue">7</span>
+                        </div>
+                    </div>
+
+                    <!-- Caffeine Intake -->
+                    <div class="advanced-item">
+                        <label>
+                            Caffeine intake today
+                            <span class="info-icon">?
+                                <span class="tooltip">Caffeine has a complex relationship with migraines - it can help treat them but overuse or withdrawal can trigger them. Regular users may experience withdrawal headaches.</span>
+                            </span>
+                        </label>
+                        <select id="caffeineSelect" onchange="updateCaffeine()">
+                            <option value="0">None (0 mg)</option>
+                            <option value="50">Low (50-100 mg) - equivalent to 1 cup of coffee</option>
+                            <option value="150">Moderate (150-200 mg) - equivalent to 2 cups of coffee</option>
+                            <option value="300">High (300-400 mg) - equivalent to 3-4 cups of coffee</option>
+                            <option value="500">Very High (500+ mg) - equivalent to 5+ cups of coffee</option>
+                        </select>
+                    </div>
+
+                    <!-- Screen Time -->
+                    <div class="advanced-item">
+                        <label>
+                            Screen time today (hours)
+                            <span class="info-icon">?
+                                <span class="tooltip">Prolonged screen exposure can cause eye strain and trigger migraines in some individuals, particularly with bright screens or blue light exposure.</span>
+                            </span>
+                        </label>
+                        <div class="slider-container">
+                            <span>0</span>
+                            <input type="range" min="0" max="8" step="0.5" value="4" id="screenSlider" oninput="updateScreen(this.value)">
+                            <span>8+</span>
+                            <span class="slider-value" id="screenValue">4</span>
+                        </div>
+                    </div>
+
+                    <!-- Menstrual Cycle -->
+                    <div class="advanced-item">
+                        <label>
+                            Next expected menstrual cycle (days away)
+                            <span class="info-icon">?
+                                <span class="tooltip">Hormonal fluctuations around menstruation are a significant migraine trigger for many people. Risk is highest 2 days before through first 3 days of menstruation.</span>
+                            </span>
+                        </label>
+                        <input type="number" id="menstrualInput" min="0" max="60" value="15" onchange="updateMenstrual()" placeholder="Enter days (0-60)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thin Grey Line -->
+            <div class="thin-line"></div>
+
+            <!-- Individual Factors -->
+            <div class="factors-section">
+                <h2>Environmental & Personal Factors</h2>
+                <div id="factorsContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Location Modal -->
+    <div class="modal" id="locationModal">
+        <div class="modal-content">
+            <h2>Location Required</h2>
+            <p>We need your location to fetch weather data. This information is only used to retrieve environmental conditions and is never stored or shared.</p>
+            <p>Please enter your ZIP code or address:</p>
+            <div class="error-message" id="locationError">Invalid location. Please try again.</div>
+            <input type="text" id="locationInput" placeholder="e.g., 90210 or New York, NY">
+            <button onclick="submitManualLocation()">Get Weather Data</button>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let weatherData = null;
+        let userState = {
+            frequency: 1,
+            ateToday: false,
+            ateEnough: false,
+            stress: 0,
+            sleep: 7,
+            caffeine: 0,
+            screenTime: 4,
+            menstrualDays: 15,
+            cookiesAccepted: false
+        };
+
+        // Check for cookies consent on load
+        window.addEventListener('DOMContentLoaded', function() {
+            const cookiesAccepted = localStorage.getItem('cookiesAccepted');
+            if (cookiesAccepted === null) {
+                document.getElementById('cookieConsent').style.display = 'block';
+            } else if (cookiesAccepted === 'true') {
+                userState.cookiesAccepted = true;
+                loadUserPreferences();
+            }
+
+            // Check for API key
+            const apiKey = localStorage.getItem('weatherApiKey');
+            if (apiKey) {
+                document.getElementById('apiKeySection').style.display = 'none';
+                initializeApp();
+            }
+        });
+
+        function acceptCookies() {
+            localStorage.setItem('cookiesAccepted', 'true');
+            userState.cookiesAccepted = true;
+            document.getElementById('cookieConsent').style.display = 'none';
+            saveUserPreferences();
+        }
+
+        function declineCookies() {
+            localStorage.setItem('cookiesAccepted', 'false');
+            userState.cookiesAccepted = false;
+            document.getElementById('cookieConsent').style.display = 'none';
+        }
+
+        function saveApiKey() {
+            const apiKey = document.getElementById('apiKeyInput').value.trim();
+            if (!apiKey) {
+                alert('Please enter an API key');
+                return;
+            }
+            localStorage.setItem('weatherApiKey', apiKey);
+            document.getElementById('apiKeySection').style.display = 'none';
+            initializeApp();
+        }
+
+        function saveUserPreferences() {
+            if (userState.cookiesAccepted) {
+                localStorage.setItem('userPreferences', JSON.stringify(userState));
+            }
+        }
+
+        function loadUserPreferences() {
+            const saved = localStorage.getItem('userPreferences');
+            if (saved) {
+                const loaded = JSON.parse(saved);
+                userState = { ...userState, ...loaded };
+                applyLoadedPreferences();
+            }
+        }
+
+        function applyLoadedPreferences() {
+            // Apply frequency
+            selectFrequency(userState.frequency);
+
+            // Apply advanced settings
+            document.getElementById('stressSlider').value = userState.stress;
+            document.getElementById('stressValue').textContent = userState.stress;
+
+            document.getElementById('sleepSlider').value = userState.sleep;
+            document.getElementById('sleepValue').textContent = userState.sleep;
+
+            document.getElementById('caffeineSelect').value = userState.caffeine;
+
+            document.getElementById('screenSlider').value = userState.screenTime;
+            document.getElementById('screenValue').textContent = userState.screenTime;
+
+            document.getElementById('menstrualInput').value = userState.menstrualDays;
+        }
+
+        function initializeApp() {
+            document.getElementById('loadingState').style.display = 'block';
+            requestLocation();
+        }
+
+        function requestLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        fetchWeatherData(`${lat},${lon}`);
+                    },
+                    error => {
+                        // Geolocation denied, try IP-based location
+                        fetchWeatherData('auto:ip');
+                    }
+                );
+            } else {
+                // Geolocation not supported, try IP-based
+                fetchWeatherData('auto:ip');
+            }
+        }
+
+        async function fetchWeatherData(location) {
+            const apiKey = localStorage.getItem('weatherApiKey');
+            try {
+                const response = await fetch(
+                    `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=yes`
+                );
+
+                if (!response.ok) {
+                    if (response.status === 400 && location === 'auto:ip') {
+                        // IP location failed, show manual input
+                        showLocationModal();
+                        return;
+                    }
+                    throw new Error('Weather API request failed');
+                }
+
+                weatherData = await response.json();
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                calculateAndDisplayMigraineIndex();
+            } catch (error) {
+                console.error('Error fetching weather:', error);
+                document.getElementById('loadingState').style.display = 'none';
+                if (location === 'auto:ip') {
+                    showLocationModal();
+                } else {
+                    document.getElementById('locationError').classList.add('show');
+                }
+            }
+        }
+
+        function showLocationModal() {
+            document.getElementById('locationModal').classList.add('show');
+        }
+
+        function submitManualLocation() {
+            const location = document.getElementById('locationInput').value.trim();
+            if (!location) {
+                document.getElementById('locationError').textContent = 'Please enter a location.';
+                document.getElementById('locationError').classList.add('show');
+                return;
+            }
+            document.getElementById('locationModal').classList.remove('show');
+            document.getElementById('loadingState').style.display = 'block';
+            fetchWeatherData(location);
+        }
+
+        function selectFrequency(freq) {
+            document.querySelectorAll('.frequency-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            document.querySelector(`[data-freq="${freq}"]`).classList.add('selected');
+            userState.frequency = freq;
+            saveUserPreferences();
+            if (weatherData) {
+                calculateAndDisplayMigraineIndex();
+            }
+        }
+
+        function toggleAdvanced() {
+            const content = document.getElementById('advancedContent');
+            const toggle = document.querySelector('.advanced-toggle');
+            content.classList.toggle('show');
+            toggle.classList.toggle('open');
+        }
+
+        function setAteToday(value) {
+            userState.ateToday = value;
+            const buttons = document.querySelectorAll('.advanced-item:nth-child(1) .yes-no-buttons button');
+            buttons.forEach((btn, idx) => {
+                btn.classList.toggle('active', (idx === 1) === value);
+            });
+
+            const subQuestion = document.getElementById('ateEnoughQuestion');
+            if (value) {
+                subQuestion.classList.add('show');
+            } else {
+                subQuestion.classList.remove('show');
+                userState.ateEnough = false;
+            }
+
+            saveUserPreferences();
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function setAteEnough(value) {
+            userState.ateEnough = value;
+            const buttons = document.querySelectorAll('#ateEnoughQuestion .yes-no-buttons button');
+            buttons.forEach((btn, idx) => {
+                btn.classList.toggle('active', (idx === 1) === value);
+            });
+            saveUserPreferences();
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function updateStress(value) {
+            userState.stress = parseInt(value);
+            document.getElementById('stressValue').textContent = value;
+            saveUserPreferences();
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function updateSleep(value) {
+            userState.sleep = parseInt(value);
+            document.getElementById('sleepValue').textContent = value;
+            saveUserPreferences();
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function updateCaffeine() {
+            userState.caffeine = parseInt(document.getElementById('caffeineSelect').value);
+            saveUserPreferences();
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function updateScreen(value) {
+            userState.screenTime = parseFloat(value);
+            document.getElementById('screenValue').textContent = value;
+            saveUserPreferences();
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function updateMenstrual() {
+            const value = parseInt(document.getElementById('menstrualInput').value);
+            userState.menstrualDays = isNaN(value) ? 15 : Math.max(0, Math.min(60, value));
+            saveUserPreferences();
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function calculateAndDisplayMigraineIndex() {
+            if (!weatherData) return;
+
+            // Extract environmental data
+            const current = weatherData.current;
+            const pressure = current.pressure_mb;
+            const temp = current.temp_c;
+            const humidity = current.humidity;
+            const windSpeed = current.wind_kph;
+            const precipitation = current.precip_mm;
+            const aqi = current.air_quality?.['us-epa-index'] || 1;
+
+            // Get time-related factors
+            const now = new Date();
+            const hour = now.getHours();
+            const dayOfWeek = now.getDay();
+            const month = now.getMonth();
+
+            // Calculate base risk scores for each factor (0-100 scale)
+            const factors = {
+                pressure: calculatePressureRisk(pressure),
+                temperature: calculateTemperatureRisk(temp),
+                humidity: calculateHumidityRisk(humidity),
+                aqi: calculateAQIRisk(aqi),
+                precipitation: calculatePrecipitationRisk(precipitation),
+                wind: calculateWindRisk(windSpeed),
+                time: calculateTimeRisk(hour),
+                sleep: calculateSleepRisk(userState.sleep),
+                stress: calculateStressRisk(userState.stress),
+                food: calculateFoodRisk(userState.ateToday, userState.ateEnough),
+                caffeine: calculateCaffeineRisk(userState.caffeine),
+                screen: calculateScreenRisk(userState.screenTime),
+                menstrual: calculateMenstrualRisk(userState.menstrualDays)
+            };
+
+            // Research-based weights (totaling to 1.0)
+            const weights = {
+                pressure: 0.20,      // High - most studied environmental factor
+                humidity: 0.12,      // Medium-high - 28% increase in odds
+                temperature: 0.12,   // Medium-high - 19-24% increase
+                aqi: 0.08,           // Medium - 3-5% per IQR
+                precipitation: 0.05, // Low-medium - related to pressure changes
+                wind: 0.03,          // Low - proxy for weather fronts
+                time: 0.05,          // Low-medium - circadian patterns
+                sleep: 0.15,         // High - major personal trigger
+                stress: 0.10,        // Medium-high - cortisol pathway
+                food: 0.05,          // Medium - blood sugar trigger
+                caffeine: 0.03,      // Low-medium - complex relationship
+                screen: 0.02,        // Low - eye strain
+                menstrual: 0.05      // Medium - hormonal fluctuations
+            };
+
+            // Apply sensitivity multiplier based on frequency (1=low sensitivity, 6=extreme sensitivity)
+            const sensitivityMultiplier = 0.5 + (userState.frequency * 0.15); // Range: 0.65 to 1.4
+
+            // Calculate weighted migraine index
+            let migraineIndex = 0;
+            for (const factor in factors) {
+                migraineIndex += factors[factor] * weights[factor];
+            }
+
+            // Apply sensitivity multiplier
+            migraineIndex *= sensitivityMultiplier;
+
+            // Clamp to 0-100
+            migraineIndex = Math.max(0, Math.min(100, Math.round(migraineIndex)));
+
+            // Update display
+            document.getElementById('indexValue').textContent = migraineIndex;
+            const marker = document.getElementById('indexMarker');
+            marker.style.left = `${migraineIndex}%`;
+
+            // Display individual factors
+            displayFactors(factors, weatherData);
+        }
+
+        // Risk calculation functions (return 0-100 scale)
+        function calculatePressureRisk(pressure) {
+            // Normal pressure: ~1013 mb. Deviations increase risk
+            const deviation = Math.abs(pressure - 1013);
+            // High deviation = high risk. 20mb deviation = ~60 risk
+            return Math.min(100, (deviation / 20) * 60);
+        }
+
+        function calculateTemperatureRisk(temp) {
+            // Extreme temperatures (very hot or very cold) increase risk
+            // Comfortable range: 18-24°C
+            if (temp >= 18 && temp <= 24) return 10;
+            if (temp < 18) return Math.min(100, (18 - temp) * 5);
+            if (temp > 24) return Math.min(100, (temp - 24) * 4);
+            return 20;
+        }
+
+        function calculateHumidityRisk(humidity) {
+            // High humidity (>70%) increases risk, especially in warm seasons
+            if (humidity < 50) return 20;
+            if (humidity < 70) return 30;
+            return Math.min(100, 40 + (humidity - 70) * 2);
+        }
+
+        function calculateAQIRisk(aqi) {
+            // US EPA AQI: 1=Good, 2=Moderate, 3=Unhealthy for sensitive, 4=Unhealthy, 5=Very unhealthy, 6=Hazardous
+            const aqiRiskMap = { 1: 10, 2: 30, 3: 50, 4: 70, 5: 85, 6: 100 };
+            return aqiRiskMap[aqi] || 50;
+        }
+
+        function calculatePrecipitationRisk(precip) {
+            // Precipitation often accompanies pressure changes
+            if (precip === 0) return 15;
+            if (precip < 5) return 35;
+            return Math.min(100, 50 + precip * 3);
+        }
+
+        function calculateWindRisk(windSpeed) {
+            // High winds suggest weather front movement
+            if (windSpeed < 10) return 15;
+            if (windSpeed < 20) return 30;
+            return Math.min(100, 40 + (windSpeed - 20) * 2);
+        }
+
+        function calculateTimeRisk(hour) {
+            // Migraines more common in early morning (4-9 AM)
+            if (hour >= 4 && hour <= 9) return 50;
+            if (hour >= 10 && hour <= 15) return 25;
+            return 20;
+        }
+
+        function calculateSleepRisk(sleepQuality) {
+            // Poor sleep (0-4) = high risk, good sleep (7-8) = low risk, too much sleep (9-10) = moderate risk
+            if (sleepQuality <= 4) return 70 - (sleepQuality * 10);
+            if (sleepQuality >= 7 && sleepQuality <= 8) return 10;
+            if (sleepQuality >= 9) return 30 + ((sleepQuality - 8) * 10);
+            return 40; // 5-6 range
+        }
+
+        function calculateStressRisk(stress) {
+            // Stress contributes but doesn't guarantee migraine
+            // Linear relationship but capped contribution
+            return Math.min(70, stress * 6);
+        }
+
+        function calculateFoodRisk(ateToday, ateEnough) {
+            if (!ateToday) return 60;
+            if (ateToday && !ateEnough) return 35;
+            return 10;
+        }
+
+        function calculateCaffeineRisk(caffeine) {
+            // Complex: no caffeine (possible withdrawal) or very high (overuse) both risky
+            if (caffeine === 0) return 30; // Possible withdrawal for regular users
+            if (caffeine <= 150) return 15; // Moderate, potentially helpful
+            if (caffeine <= 300) return 25;
+            return 50; // High caffeine = overuse risk
+        }
+
+        function calculateScreenRisk(screenTime) {
+            // More screen time = more eye strain
+            if (screenTime <= 2) return 10;
+            if (screenTime <= 4) return 20;
+            if (screenTime <= 6) return 35;
+            return 50;
+        }
+
+        function calculateMenstrualRisk(daysAway) {
+            // Risk peaks 2 days before through first 3 days
+            if (daysAway <= 3) return 65; // During period
+            if (daysAway >= 26 && daysAway <= 30) return 70; // 2 days before (assuming 28-day cycle)
+            if (daysAway >= 4 && daysAway <= 7) return 40; // Just after
+            if (daysAway >= 23 && daysAway <= 25) return 45; // Week before
+            return 20; // Mid-cycle
+        }
+
+        function displayFactors(factors, weatherData) {
+            const container = document.getElementById('factorsContainer');
+            const current = weatherData.current;
+
+            const factorDisplays = [
+                {
+                    name: 'Barometric Pressure',
+                    value: `${current.pressure_mb} mb`,
+                    risk: factors.pressure,
+                    tooltip: 'Atmospheric pressure changes are strongly associated with migraine onset. Rapid changes (especially drops) are more significant than absolute values.'
+                },
+                {
+                    name: 'Temperature',
+                    value: `${current.temp_c}°C / ${current.temp_f}°F`,
+                    risk: factors.temperature,
+                    tooltip: 'Both temperature extremes and rapid changes (5°C within 1-3 days) can trigger migraines through vascular mechanisms.'
+                },
+                {
+                    name: 'Humidity',
+                    value: `${current.humidity}%`,
+                    risk: factors.humidity,
+                    tooltip: 'High humidity (>70%) is associated with 28% higher migraine odds, particularly during warm seasons (April-September).'
+                },
+                {
+                    name: 'Air Quality Index',
+                    value: getAQILabel(current.air_quality?.['us-epa-index'] || 1),
+                    risk: factors.aqi,
+                    tooltip: 'Air pollutants (PM2.5, NO2, O3) increase migraine risk by 3-5% per increment. Particulate matter effects are stronger on high-temperature days.'
+                },
+                {
+                    name: 'Precipitation',
+                    value: `${current.precip_mm} mm`,
+                    risk: factors.precipitation,
+                    tooltip: 'Precipitation often accompanies pressure changes and weather fronts, which can trigger migraines. The type and intensity matter.'
+                },
+                {
+                    name: 'Wind Speed',
+                    value: `${current.wind_kph} km/h`,
+                    risk: factors.wind,
+                    tooltip: 'High winds and rapid wind changes suggest moving weather fronts, which are associated with barometric pressure changes.'
+                },
+                {
+                    name: 'Time of Day',
+                    value: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    risk: factors.time,
+                    tooltip: 'Migraines are more common in early morning (4-9 AM) due to circadian rhythm factors and cortisol fluctuations.'
+                },
+                {
+                    name: 'Sleep Quality',
+                    value: `${userState.sleep}/10`,
+                    risk: factors.sleep,
+                    tooltip: 'Poor sleep quality increases oxidative stress and cortisol, making you more vulnerable. Both sleep deprivation and excessive sleep can trigger migraines.'
+                },
+                {
+                    name: 'Stress Level',
+                    value: `${userState.stress}/10`,
+                    risk: factors.stress,
+                    tooltip: 'Stress elevates cortisol and causes inflammation/brain sensitivity. However, high stress alone doesn\'t guarantee a migraine - it\'s one contributing factor.'
+                },
+                {
+                    name: 'Food Intake',
+                    value: userState.ateToday ? (userState.ateEnough ? 'Adequate' : 'Insufficient') : 'None',
+                    risk: factors.food,
+                    tooltip: 'Skipping meals or inadequate food intake causes blood sugar drops, which are a common migraine trigger.'
+                },
+                {
+                    name: 'Caffeine Intake',
+                    value: `${userState.caffeine} mg`,
+                    risk: factors.caffeine,
+                    tooltip: 'Caffeine has a complex relationship with migraines. It can help treat them, but overuse (>400mg/day) or withdrawal in regular users can trigger them.'
+                },
+                {
+                    name: 'Screen Time',
+                    value: `${userState.screenTime} hrs`,
+                    risk: factors.screen,
+                    tooltip: 'Prolonged screen exposure causes eye strain and may trigger migraines, particularly with bright screens or blue light exposure.'
+                },
+                {
+                    name: 'Menstrual Cycle',
+                    value: `${userState.menstrualDays} days`,
+                    risk: factors.menstrual,
+                    tooltip: 'Hormonal fluctuations are a significant trigger. Risk is highest 2 days before through the first 3 days of menstruation.'
+                }
+            ];
+
+            container.innerHTML = factorDisplays.map(factor => `
+                <div class="factor-item">
+                    <div class="factor-header">
+                        <span class="factor-name">
+                            ${factor.name}
+                            <span class="info-icon">?
+                                <span class="tooltip">${factor.tooltip}</span>
+                            </span>
+                        </span>
+                        <span class="factor-value">${factor.value}</span>
+                    </div>
+                    <div class="factor-scale">
+                        <div class="factor-marker" style="left: ${factor.risk}%"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getAQILabel(aqi) {
+            const labels = {
+                1: 'Good',
+                2: 'Moderate',
+                3: 'Unhealthy (Sensitive)',
+                4: 'Unhealthy',
+                5: 'Very Unhealthy',
+                6: 'Hazardous'
+            };
+            return labels[aqi] || 'Unknown';
+        }
+    </script>
+</body>
+</html>
