@@ -697,12 +697,39 @@
                                 <span class="tooltip">Poor sleep increases oxidative stress in the brain and elevates cortisol, both of which can trigger migraines. Both too little and too much sleep are triggers. Optimal is 7-8 hours.</span>
                             </span>
                         </label>
-                        <div class="slider-container">
-                            <span>0 hrs</span>
-                            <input type="range" min="0" max="12" step="0.5" value="7" id="sleepSlider" oninput="updateSleep(this.value)">
-                            <span>12+ hrs</span>
-                            <span class="slider-value" id="sleepValue">7 hrs</span>
-                        </div>
+                        <select id="sleepSelect" onchange="updateSleep(this.value)">
+                            <option value="0" style="background-color: #fca5a5;">0 hrs</option>
+                            <option value="0.5" style="background-color: #fca5a5;">0.5 hrs</option>
+                            <option value="1" style="background-color: #fca5a5;">1 hr</option>
+                            <option value="1.5" style="background-color: #fca5a5;">1.5 hrs</option>
+                            <option value="2" style="background-color: #fca5a5;">2 hrs</option>
+                            <option value="2.5" style="background-color: #fca5a5;">2.5 hrs</option>
+                            <option value="3" style="background-color: #fca5a5;">3 hrs</option>
+                            <option value="3.5" style="background-color: #fde047;">3.5 hrs</option>
+                            <option value="4" style="background-color: #fde047;">4 hrs</option>
+                            <option value="4.5" style="background-color: #fde047;">4.5 hrs</option>
+                            <option value="5" style="background-color: #fde047;">5 hrs</option>
+                            <option value="5.5" style="background-color: #fde047;">5.5 hrs</option>
+                            <option value="6" style="background-color: #86efac;">6 hrs</option>
+                            <option value="6.5" style="background-color: #86efac;">6.5 hrs</option>
+                            <option value="7" style="background-color: #86efac;" selected>7 hrs</option>
+                            <option value="7.5" style="background-color: #86efac;">7.5 hrs</option>
+                            <option value="8" style="background-color: #86efac;">8 hrs</option>
+                            <option value="8.5" style="background-color: #86efac;">8.5 hrs</option>
+                            <option value="9" style="background-color: #86efac;">9 hrs</option>
+                            <option value="9.5" style="background-color: #86efac;">9.5 hrs</option>
+                            <option value="10" style="background-color: #fde047;">10 hrs</option>
+                            <option value="10.5" style="background-color: #fde047;">10.5 hrs</option>
+                            <option value="11" style="background-color: #fde047;">11 hrs</option>
+                            <option value="11.5" style="background-color: #fde047;">11.5 hrs</option>
+                            <option value="12" style="background-color: #fde047;">12 hrs</option>
+                            <option value="12.5" style="background-color: #fca5a5;">12.5 hrs</option>
+                            <option value="13" style="background-color: #fca5a5;">13 hrs</option>
+                            <option value="13.5" style="background-color: #fca5a5;">13.5 hrs</option>
+                            <option value="14" style="background-color: #fca5a5;">14 hrs</option>
+                            <option value="14.5" style="background-color: #fca5a5;">14.5 hrs</option>
+                            <option value="15" style="background-color: #fca5a5;">15+ hrs</option>
+                        </select>
                     </div>
 
                     <!-- Caffeine Intake -->
@@ -714,12 +741,21 @@
                             </span>
                         </label>
                         <select id="caffeineSelect" onchange="updateCaffeine()">
-                            <option value="0">None (0 mg)</option>
-                            <option value="50">Low (50-100 mg)</option>
-                            <option value="150">Moderate (150-200 mg)</option>
-                            <option value="300">High (300-400 mg)</option>
-                            <option value="500">Very High (500-600 mg)</option>
-                            <option value="800">My Heartrate is a Hummingbird (800+ mg)</option>
+                            <option value="0">None - Caffeine? Never heard of her (0 mg)</option>
+                            <option value="25">Barely Awake (25-50 mg)</option>
+                            <option value="75">Sipping Gently (75-100 mg)</option>
+                            <option value="125">One Cup Wonder (125-150 mg)</option>
+                            <option value="175">Casually Caffeinated (175-200 mg)</option>
+                            <option value="225">Getting Serious (225-250 mg)</option>
+                            <option value="275">Double-Fisting (275-300 mg)</option>
+                            <option value="350">Productivity Mode (350-400 mg)</option>
+                            <option value="450">Vibrating Slightly (450-500 mg)</option>
+                            <option value="550">Can Taste Colors (550-600 mg)</option>
+                            <option value="650">Questioning Reality (650-700 mg)</option>
+                            <option value="750">Hummingbird Heart Rate (750-800 mg)</option>
+                            <option value="850">Transcending This Plane (850-900 mg)</option>
+                            <option value="950">Communicating with Coffee Gods (950-1000 mg)</option>
+                            <option value="1000">1000+ mg (Please Seek Help)</option>
                         </select>
                         <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                             <div>
@@ -739,6 +775,24 @@
                                     </span>
                                 </label>
                                 <input type="number" id="energyDrinksInput" min="0" max="20" value="0" placeholder="0" onchange="updateCaffeineDetails()" style="width: 100%;">
+                            </div>
+                            <div>
+                                <label style="font-size: 14px; margin-bottom: 5px;">
+                                    Cups of strong tea
+                                    <span class="info-icon">?
+                                        <span class="tooltip">1 cup of strong black tea contains approximately 50mg of caffeine. Green tea contains about 30mg per cup.</span>
+                                    </span>
+                                </label>
+                                <input type="number" id="teaCupsInput" min="0" max="20" value="0" placeholder="0" onchange="updateCaffeineDetails()" style="width: 100%;">
+                            </div>
+                            <div>
+                                <label style="font-size: 14px; margin-bottom: 5px;">
+                                    Caffeine via meds (mg)
+                                    <span class="info-icon">?
+                                        <span class="tooltip">Some medications contain caffeine. Common examples: Excedrin (65mg), Midol (60mg), Anacin (32mg). Check your medication label.</span>
+                                    </span>
+                                </label>
+                                <input type="number" id="caffeineMedsInput" min="0" max="500" value="0" placeholder="0" onchange="updateCaffeineDetails()" style="width: 100%;">
                             </div>
                         </div>
                     </div>
@@ -761,21 +815,45 @@
 
                     <!-- Menstrual Cycle -->
                     <div class="advanced-item">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                            <input type="checkbox" id="menstrualNotApplicableCheckbox" onchange="toggleMenstrualApplicable()" style="width: auto; padding: 0;">
-                            <label for="menstrualNotApplicableCheckbox" style="margin: 0;">
-                                Not applicable (does not apply to me)
-                            </label>
-                        </div>
-                        <div id="menstrualInputSection">
-                            <label>
-                                Next expected menstrual cycle (days away)
-                                <span class="info-icon">?
-                                    <span class="tooltip">Hormonal fluctuations around menstruation are a significant migraine trigger for many people. Risk is highest 2 days before through first 3 days of menstruation.</span>
-                                </span>
-                            </label>
-                            <input type="number" id="menstrualInput" min="0" max="60" value="" onchange="updateMenstrual()" placeholder="Enter days (0-60)">
-                        </div>
+                        <label>
+                            Next expected menstrual cycle (days away)
+                            <span class="info-icon">?
+                                <span class="tooltip">Hormonal fluctuations around menstruation are a significant migraine trigger for many people. Risk is highest 2 days before through first 3 days of menstruation.</span>
+                            </span>
+                        </label>
+                        <select id="menstrualSelect" onchange="updateMenstrual()">
+                            <option value="" selected>Select...</option>
+                            <option value="not_applicable">Does not apply to me</option>
+                            <option value="0">0 days (currently menstruating)</option>
+                            <option value="1">1 day</option>
+                            <option value="2">2 days</option>
+                            <option value="3">3 days</option>
+                            <option value="4">4 days</option>
+                            <option value="5">5 days</option>
+                            <option value="6">6 days</option>
+                            <option value="7">7 days</option>
+                            <option value="8">8 days</option>
+                            <option value="9">9 days</option>
+                            <option value="10">10 days</option>
+                            <option value="11">11 days</option>
+                            <option value="12">12 days</option>
+                            <option value="13">13 days</option>
+                            <option value="14">14 days</option>
+                            <option value="15">15 days</option>
+                            <option value="16">16 days</option>
+                            <option value="17">17 days</option>
+                            <option value="18">18 days</option>
+                            <option value="19">19 days</option>
+                            <option value="20">20 days</option>
+                            <option value="21">21 days</option>
+                            <option value="22">22 days</option>
+                            <option value="23">23 days</option>
+                            <option value="24">24 days</option>
+                            <option value="25">25 days</option>
+                            <option value="26">26 days</option>
+                            <option value="27">27 days</option>
+                            <option value="28">28 days</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -824,7 +902,7 @@
             stress: null,  // null means not filled out, default shown as 0
             sleep: null,  // null means not filled out, default shown as 7
             caffeine: null,  // null means not filled out, default shown as 0
-            caffeineDetail: { cups: 0, energyDrinks: 0 },
+            caffeineDetail: { cups: 0, energyDrinks: 0, teaCups: 0, meds: 0 },
             screenTime: null,  // null means not filled out, default shown as 4
             // Menstrual cycle
             menstrualDays: null,  // null means not filled out
@@ -910,8 +988,7 @@
 
             // Apply sleep
             if (userState.sleep !== null) {
-                document.getElementById('sleepSlider').value = userState.sleep;
-                document.getElementById('sleepValue').textContent = userState.sleep + ' hrs';
+                document.getElementById('sleepSelect').value = userState.sleep;
             }
 
             // Apply caffeine
@@ -921,6 +998,8 @@
             if (userState.caffeineDetail) {
                 document.getElementById('coffeeCupsInput').value = userState.caffeineDetail.cups || 0;
                 document.getElementById('energyDrinksInput').value = userState.caffeineDetail.energyDrinks || 0;
+                document.getElementById('teaCupsInput').value = userState.caffeineDetail.teaCups || 0;
+                document.getElementById('caffeineMedsInput').value = userState.caffeineDetail.meds || 0;
             }
 
             // Apply screen time
@@ -931,10 +1010,9 @@
 
             // Apply menstrual cycle
             if (userState.menstrualNotApplicable) {
-                document.getElementById('menstrualNotApplicableCheckbox').checked = true;
-                document.getElementById('menstrualInputSection').style.display = 'none';
+                document.getElementById('menstrualSelect').value = 'not_applicable';
             } else if (userState.menstrualDays !== null) {
-                document.getElementById('menstrualInput').value = userState.menstrualDays;
+                document.getElementById('menstrualSelect').value = userState.menstrualDays;
             }
         }
 
@@ -1114,7 +1192,6 @@
         function updateSleep(value) {
             userState.sleep = parseFloat(value);
             userState.filledFields.sleep = true;
-            document.getElementById('sleepValue').textContent = value + ' hrs';
             saveUserPreferences();
             if (weatherData) calculateAndDisplayMigraineIndex();
         }
@@ -1129,18 +1206,29 @@
         function updateCaffeineDetails() {
             const cups = parseInt(document.getElementById('coffeeCupsInput').value) || 0;
             const energyDrinks = parseInt(document.getElementById('energyDrinksInput').value) || 0;
-            userState.caffeineDetail = { cups, energyDrinks };
+            const teaCups = parseInt(document.getElementById('teaCupsInput').value) || 0;
+            const meds = parseInt(document.getElementById('caffeineMedsInput').value) || 0;
+            userState.caffeineDetail = { cups, energyDrinks, teaCups, meds };
 
-            // Estimate caffeine from cups and energy drinks (95mg per cup, 120mg per energy drink average)
-            const estimatedCaffeine = (cups * 95) + (energyDrinks * 120);
+            // Estimate caffeine: coffee=95mg, energy drink=120mg, tea=50mg, meds=direct mg
+            const estimatedCaffeine = (cups * 95) + (energyDrinks * 120) + (teaCups * 50) + meds;
 
             // Update the select to match the estimated range
             if (estimatedCaffeine === 0) userState.caffeine = 0;
-            else if (estimatedCaffeine <= 100) userState.caffeine = 50;
-            else if (estimatedCaffeine <= 200) userState.caffeine = 150;
-            else if (estimatedCaffeine <= 400) userState.caffeine = 300;
-            else if (estimatedCaffeine <= 600) userState.caffeine = 500;
-            else userState.caffeine = 800;
+            else if (estimatedCaffeine <= 50) userState.caffeine = 25;
+            else if (estimatedCaffeine <= 100) userState.caffeine = 75;
+            else if (estimatedCaffeine <= 150) userState.caffeine = 125;
+            else if (estimatedCaffeine <= 200) userState.caffeine = 175;
+            else if (estimatedCaffeine <= 250) userState.caffeine = 225;
+            else if (estimatedCaffeine <= 300) userState.caffeine = 275;
+            else if (estimatedCaffeine <= 400) userState.caffeine = 350;
+            else if (estimatedCaffeine <= 500) userState.caffeine = 450;
+            else if (estimatedCaffeine <= 600) userState.caffeine = 550;
+            else if (estimatedCaffeine <= 700) userState.caffeine = 650;
+            else if (estimatedCaffeine <= 800) userState.caffeine = 750;
+            else if (estimatedCaffeine <= 900) userState.caffeine = 850;
+            else if (estimatedCaffeine <= 1000) userState.caffeine = 950;
+            else userState.caffeine = 1000;
 
             document.getElementById('caffeineSelect').value = userState.caffeine;
             userState.filledFields.caffeine = true;
@@ -1156,31 +1244,23 @@
             if (weatherData) calculateAndDisplayMigraineIndex();
         }
 
-        function toggleMenstrualApplicable() {
-            const checkbox = document.getElementById('menstrualNotApplicableCheckbox');
-            const inputSection = document.getElementById('menstrualInputSection');
-            userState.menstrualNotApplicable = checkbox.checked;
+        function updateMenstrual() {
+            const value = document.getElementById('menstrualSelect').value;
             userState.filledFields.menstrual = true;
 
-            if (checkbox.checked) {
-                inputSection.style.display = 'none';
+            if (value === 'not_applicable') {
+                userState.menstrualNotApplicable = true;
+                userState.menstrualDays = null;
+            } else if (value === '') {
+                userState.menstrualNotApplicable = false;
                 userState.menstrualDays = null;
             } else {
-                inputSection.style.display = 'block';
+                userState.menstrualNotApplicable = false;
+                userState.menstrualDays = parseInt(value);
             }
 
             saveUserPreferences();
             if (weatherData) calculateAndDisplayMigraineIndex();
-        }
-
-        function updateMenstrual() {
-            const value = parseInt(document.getElementById('menstrualInput').value);
-            if (!isNaN(value)) {
-                userState.menstrualDays = Math.max(0, Math.min(60, value));
-                userState.filledFields.menstrual = true;
-                saveUserPreferences();
-                if (weatherData) calculateAndDisplayMigraineIndex();
-            }
         }
 
         function calculateAndDisplayMigraineIndex() {
@@ -1238,8 +1318,8 @@
             };
 
             // Apply sensitivity multiplier based on frequency (1=low sensitivity, 6=extreme sensitivity)
-            // Stronger impact: 10+ migraines/month (freq=6) gives ~30-35% higher baseline
-            const sensitivityMultiplier = 0.85 + (userState.frequency * 0.10); // Range: 0.95 to 1.45
+            // Stronger impact: 10+ migraines/month (freq=6) gives ~90% higher baseline
+            const sensitivityMultiplier = 0.70 + (userState.frequency * 0.20); // Range: 0.90 to 1.90
 
             // Calculate weighted migraine index
             let migraineIndex = 0;
@@ -1266,51 +1346,51 @@
         function calculatePressureRisk(pressure) {
             // Normal pressure: ~1013 mb. Deviations increase risk
             const deviation = Math.abs(pressure - 1013);
-            // High deviation = high risk. 20mb deviation = ~60 risk
-            return Math.min(100, (deviation / 20) * 60);
+            // High deviation = high risk. 15mb deviation = ~80 risk
+            return Math.min(100, 30 + (deviation / 15) * 80);
         }
 
         function calculateTemperatureRisk(temp) {
             // Extreme temperatures (very hot or very cold) increase risk
             // Comfortable range: 18-24°C
-            if (temp >= 18 && temp <= 24) return 10;
-            if (temp < 18) return Math.min(100, (18 - temp) * 5);
-            if (temp > 24) return Math.min(100, (temp - 24) * 4);
-            return 20;
+            if (temp >= 18 && temp <= 24) return 25;
+            if (temp < 18) return Math.min(100, 30 + (18 - temp) * 6);
+            if (temp > 24) return Math.min(100, 30 + (temp - 24) * 5);
+            return 35;
         }
 
         function calculateHumidityRisk(humidity) {
             // High humidity (>70%) increases risk, especially in warm seasons
-            if (humidity < 50) return 20;
-            if (humidity < 70) return 30;
-            return Math.min(100, 40 + (humidity - 70) * 2);
+            if (humidity < 50) return 30;
+            if (humidity < 70) return 45;
+            return Math.min(100, 55 + (humidity - 70) * 2.5);
         }
 
         function calculateAQIRisk(aqi) {
             // US EPA AQI: 1=Good, 2=Moderate, 3=Unhealthy for sensitive, 4=Unhealthy, 5=Very unhealthy, 6=Hazardous
-            const aqiRiskMap = { 1: 10, 2: 30, 3: 50, 4: 70, 5: 85, 6: 100 };
-            return aqiRiskMap[aqi] || 50;
+            const aqiRiskMap = { 1: 25, 2: 45, 3: 65, 4: 80, 5: 92, 6: 100 };
+            return aqiRiskMap[aqi] || 60;
         }
 
         function calculatePrecipitationRisk(precip) {
             // Precipitation often accompanies pressure changes
-            if (precip === 0) return 15;
-            if (precip < 5) return 35;
-            return Math.min(100, 50 + precip * 3);
+            if (precip === 0) return 30;
+            if (precip < 5) return 50;
+            return Math.min(100, 65 + precip * 3);
         }
 
         function calculateWindRisk(windSpeed) {
             // High winds suggest weather front movement
-            if (windSpeed < 10) return 15;
-            if (windSpeed < 20) return 30;
-            return Math.min(100, 40 + (windSpeed - 20) * 2);
+            if (windSpeed < 10) return 30;
+            if (windSpeed < 20) return 50;
+            return Math.min(100, 60 + (windSpeed - 20) * 2);
         }
 
         function calculateTimeRisk(hour) {
             // Migraines more common in early morning (4-9 AM)
-            if (hour >= 4 && hour <= 9) return 50;
-            if (hour >= 10 && hour <= 15) return 25;
-            return 20;
+            if (hour >= 4 && hour <= 9) return 65;
+            if (hour >= 10 && hour <= 15) return 40;
+            return 35;
         }
 
         function calculateSleepRisk(sleepHours) {
@@ -1383,10 +1463,14 @@
             // Complex: no caffeine (possible withdrawal) or very high (overuse) both risky
             if (caffeine === null) caffeine = 0; // Default if not filled
             if (caffeine === 0) return 30; // Possible withdrawal for regular users
-            if (caffeine <= 150) return 15; // Moderate, potentially helpful
+            if (caffeine <= 100) return 15; // Low, potentially helpful
+            if (caffeine <= 200) return 20; // Moderate, optimal range
             if (caffeine <= 300) return 25; // Moderate-high
-            if (caffeine <= 500) return 50; // High caffeine = overuse risk
-            return 75; // Very high / hummingbird level = extreme risk
+            if (caffeine <= 400) return 35; // Getting high
+            if (caffeine <= 600) return 50; // High caffeine = overuse risk
+            if (caffeine <= 800) return 65; // Very high
+            if (caffeine <= 1000) return 80; // Extreme
+            return 90; // Critical levels
         }
 
         function calculateScreenRisk(screenTime) {
