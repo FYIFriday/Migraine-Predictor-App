@@ -180,6 +180,13 @@
 
         .advanced-item {
             margin-bottom: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #3a3a3a;
+        }
+
+        .advanced-item:first-child {
+            border-top: none;
+            padding-top: 0;
         }
 
         .advanced-item label {
@@ -883,6 +890,16 @@
                 <div id="riskLevelText" style="margin-top: 20px; font-size: 16px; font-weight: 500; text-align: center; color: #555;"></div>
             </div>
 
+            <!-- 12-Hour Prediction Graph -->
+            <div id="predictionGraphSection" style="margin: 30px auto; padding: 25px; background: #1e1e1e; border-radius: 8px; max-width: 800px; display: none;">
+                <h3 style="margin: 0 0 20px 0; font-size: 18px; color: #e0e0e0; text-align: center;">12-Hour Migraine Risk Forecast</h3>
+                <div id="predictionGraphContainer" style="display: flex; justify-content: center; align-items: center; min-height: 100px;">
+                </div>
+                <div style="margin-top: 15px; font-size: 12px; color: #888; text-align: center;">
+                    Predicted risk based on forecast weather and your current personal factors
+                </div>
+            </div>
+
             <!-- Visual Break -->
             <div class="visual-break"></div>
 
@@ -898,7 +915,7 @@
                         <label>
                             I ate today
                             <span class="info-icon">?
-                                <span class="tooltip">Skipping meals is a common migraine trigger. Not eating can cause blood sugar drops that may precipitate a migraine. Adequate caloric intake and protein are important for migraine prevention.</span>
+                                <span class="tooltip">Skipping meals is a common migraine trigger due to blood sugar drops. Certain foods are also triggers: TYRAMINE (aged cheese, cured meats, pickled foods) dilates blood vessels; PHENYLETHYLAMINE (chocolate) affects neurotransmitters; NITRITES/NITRATES (processed meats) dilate vessels; HISTAMINES (citrus, fermented foods) trigger inflammation; SULFITES (pickled foods, wine) are preservatives that trigger some; ASPARTAME (sugar-free products) is an excitatory neurotransmitter; MSG & HIGH SALT (processed snacks) affect blood pressure and neurons. Not everyone reacts to all triggers.</span>
                             </span>
                         </label>
                         <div class="yes-no-buttons">
@@ -913,7 +930,7 @@
                                 </span>
                             </label>
                             <input type="number" id="caloriesInput" placeholder="e.g., 1800" min="0" onchange="updateFoodIntake()" style="margin-bottom: 15px;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
                                 <input type="checkbox" id="proteinCheckbox" onchange="updateFoodIntake()" style="width: auto; padding: 0;">
                                 <label for="proteinCheckbox" style="margin: 0;">
                                     This included sufficient protein
@@ -921,6 +938,74 @@
                                         <span class="tooltip">Adults need 0.8-1.2g of protein per kg of body weight daily (46-56g minimum for most adults). Protein helps stabilize blood sugar and may reduce migraine frequency.</span>
                                     </span>
                                 </label>
+                            </div>
+                            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #444;">
+                                <label style="font-size: 14px; margin-bottom: 10px; color: #b5b5b5;">Including:</label>
+                                <div style="display: flex; flex-direction: column; gap: 8px;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="checkbox" id="chocolateCheckbox" onchange="updateFoodTriggers()" style="width: auto; padding: 0;">
+                                        <label for="chocolateCheckbox" style="margin: 0; font-size: 14px;">
+                                            Chocolate <span style="font-size: 11px; color: #888;">(no really)</span>
+                                            <span class="info-icon">?
+                                                <span class="tooltip">It's often a combo trigger of caffeine, tyramine, and phenylethylamine. Not universal, but a common trigger. Some find dark chocolate more problematic than milk chocolate.</span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="checkbox" id="agedCheeseCheckbox" onchange="updateFoodTriggers()" style="width: auto; padding: 0;">
+                                        <label for="agedCheeseCheckbox" style="margin: 0; font-size: 14px;">
+                                            Aged Cheese <span style="font-size: 11px; color: #888;">(e.g. cheddar, blue, parmesan)</span>
+                                            <span class="info-icon">?
+                                                <span class="tooltip">These contain tyramine, which can dilate blood vessels and mess with neurotransmitter balance. The longer cheese is aged, the higher the tyramine content. Fresh cheeses like mozzarella are generally safer.</span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="checkbox" id="curedMeatsCheckbox" onchange="updateFoodTriggers()" style="width: auto; padding: 0;">
+                                        <label for="curedMeatsCheckbox" style="margin: 0; font-size: 14px;">
+                                            Cured or Deli Meats <span style="font-size: 11px; color: #888;">(e.g. salami, pepperoni, hot dogs, bacon)</span>
+                                            <span class="info-icon">?
+                                                <span class="tooltip">These contain tyramine (which can dilate blood vessels and affect neurotransmitters), as well as nitrates and nitrites (preservatives that can dilate blood vessels and start the migraine pain cascade). Processed meats are double trouble.</span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="checkbox" id="pickledFoodCheckbox" onchange="updateFoodTriggers()" style="width: auto; padding: 0;">
+                                        <label for="pickledFoodCheckbox" style="margin: 0; font-size: 14px;">
+                                            Pickled Food <span style="font-size: 11px; color: #888;">(e.g. pickles, sauerkraut, kimchi)</span>
+                                            <span class="info-icon">?
+                                                <span class="tooltip">Pickled and fermented foods contain sulfites (preservatives) and tyramine. Sulfites can trigger migraines in sensitive individuals. The pickling process also increases tyramine content.</span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="checkbox" id="candyCheckbox" onchange="updateFoodTriggers()" style="width: auto; padding: 0;">
+                                        <label for="candyCheckbox" style="margin: 0; font-size: 14px;">
+                                            Candy <span style="font-size: 11px; color: #888;">(especially sugar-free: gum, mints, diet products)</span>
+                                            <span class="info-icon">?
+                                                <span class="tooltip">Aspartame (artificial sweetener) can trigger migraines in sensitive individuals through excitatory neurotransmitter effects. Common in "sugar-free" products like diet sodas, sugar-free gum, and "lite" yogurts. Regular sugar isn't great either due to blood sugar spikes.</span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="checkbox" id="saltySnacksCheckbox" onchange="updateFoodTriggers()" style="width: auto; padding: 0;">
+                                        <label for="saltySnacksCheckbox" style="margin: 0; font-size: 14px;">
+                                            Salty Snacks <span style="font-size: 11px; color: #888;">(e.g. chips, Doritos, instant noodles, fast food)</span>
+                                            <span class="info-icon">?
+                                                <span class="tooltip">High salt intake can increase blood pressure and trigger migraines. MSG (monosodium glutamate) is an excitatory neurotransmitter that can trigger migraines. Common in chips, instant noodles, Chinese takeout, and processed foods. Watch for "natural flavoring" which often contains MSG.</span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="checkbox" id="citrusFruitCheckbox" onchange="updateFoodTriggers()" style="width: auto; padding: 0;">
+                                        <label for="citrusFruitCheckbox" style="margin: 0; font-size: 14px;">
+                                            Citrus Fruits <span style="font-size: 11px; color: #888;">(oranges, lemons, grapefruit)</span>
+                                            <span class="info-icon">?
+                                                <span class="tooltip">Citrus fruits contain histamine, which can affect some migraine sufferers. This is a less common trigger than others. Many people with migraines can eat citrus without issues.</span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -988,6 +1073,22 @@
                             <input type="range" min="0" max="15" step="0.5" value="7" id="sleepSlider" class="sleep-slider" oninput="updateSleep(this.value)">
                             <span>15+ hrs</span>
                             <span class="slider-value" id="sleepValue">7 hrs</span>
+                        </div>
+
+                        <!-- Sleep Quality Subquestion -->
+                        <div style="margin-top: 15px; padding-left: 20px; border-left: 2px solid #444;">
+                            <label style="font-size: 14px; color: #b5b5b5; display: block; margin-bottom: 8px;">
+                                How was the quality?
+                            </label>
+                            <select id="sleepQualitySelect" onchange="updateSleepQuality()" style="width: 100%; padding: 8px; background: #2a2a2a; color: #e0e0e0; border: 1px solid #555; border-radius: 4px;">
+                                <option value="" selected>Select...</option>
+                                <option value="0">Awful - What is sleep anyway?</option>
+                                <option value="1">Terrible - Tossed and turned all night</option>
+                                <option value="2">Meh - Slept... I guess?</option>
+                                <option value="3">Decent - Not bad, not great</option>
+                                <option value="4">Good - Actually rested!</option>
+                                <option value="5">Excellent - Like a baby!</option>
+                            </select>
                         </div>
                     </div>
 
@@ -1325,6 +1426,15 @@
             ateToday: null,  // null means not filled out
             calories: '',
             sufficientProtein: false,
+            foodTriggers: {
+                chocolate: false,
+                agedCheese: false,
+                curedMeats: false,
+                pickledFood: false,
+                candy: false,
+                saltySnacks: false,
+                citrusFruit: false
+            },
             // Hydration
             drankToday: null,  // null means not filled out
             fluidOz: '',
@@ -1332,6 +1442,7 @@
             // Personal factors
             stress: null,  // null means not filled out, default shown as 0
             sleep: null,  // null means not filled out, default shown as 7
+            sleepQuality: null,  // null means not filled out, 0-5 scale
             caffeine: null,  // null means not filled out, default shown as Select
             caffeineDetail: { cups: 0, energyDrinks: 0, teaCups: 0, meds: 0 },
             regularCaffeineConsumer: false,
@@ -1659,6 +1770,18 @@
             if (weatherData) calculateAndDisplayMigraineIndex();
         }
 
+        function updateFoodTriggers() {
+            userState.foodTriggers.chocolate = document.getElementById('chocolateCheckbox').checked;
+            userState.foodTriggers.agedCheese = document.getElementById('agedCheeseCheckbox').checked;
+            userState.foodTriggers.curedMeats = document.getElementById('curedMeatsCheckbox').checked;
+            userState.foodTriggers.pickledFood = document.getElementById('pickledFoodCheckbox').checked;
+            userState.foodTriggers.candy = document.getElementById('candyCheckbox').checked;
+            userState.foodTriggers.saltySnacks = document.getElementById('saltySnacksCheckbox').checked;
+            userState.foodTriggers.citrusFruit = document.getElementById('citrusFruitCheckbox').checked;
+            userState.filledFields.food = true;
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
         function setDrankToday(value) {
             userState.drankToday = value;
             userState.filledFields.hydration = true;
@@ -1699,6 +1822,17 @@
             userState.sleep = parseFloat(value);
             userState.filledFields.sleep = true;
             document.getElementById('sleepValue').textContent = value + ' hrs';
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function updateSleepQuality() {
+            const value = document.getElementById('sleepQualitySelect').value;
+            if (value === '') {
+                userState.sleepQuality = null;
+            } else {
+                userState.sleepQuality = parseInt(value);
+            }
+            userState.filledFields.sleep = true; // Mark sleep as filled when quality is set
             if (weatherData) calculateAndDisplayMigraineIndex();
         }
 
@@ -2002,6 +2136,106 @@
 
             // Display individual factors
             displayFactors(factors, weatherData);
+
+            // Generate 12-hour prediction graph
+            generate12HourPrediction();
+        }
+
+        function generate12HourPrediction() {
+            if (!weatherData || !weatherData.forecast12hr || weatherData.forecast12hr.length === 0) {
+                document.getElementById('predictionGraphSection').style.display = 'none';
+                return;
+            }
+
+            // Calculate predicted migraine risk for each hour
+            const predictions = weatherData.forecast12hr.map(hourData => {
+                // Calculate environmental factor risks for this hour
+                const pressure = hourData.pressure_mb;
+                const temp = hourData.temp_c;
+                const humidity = hourData.humidity;
+                const windSpeed = hourData.wind_kph;
+                const precipitation = hourData.precip_mm;
+                const aqi = hourData.air_quality?.['us-epa-index'] || 1;
+
+                const hourTime = new Date(hourData.time);
+                const hour = hourTime.getHours();
+
+                // Use simplified risk calculations for forecast (no historical comparison available)
+                const pressureDeviation = Math.abs(pressure - 1013);
+                const pressureRisk = Math.min(100, 30 + (pressureDeviation / 15) * 80);
+
+                let tempRisk;
+                if (temp >= 18 && temp <= 24) tempRisk = 25;
+                else if (temp < 18) tempRisk = Math.min(100, 30 + (18 - temp) * 6);
+                else tempRisk = Math.min(100, 30 + (temp - 24) * 5);
+
+                const humidityRisk = humidity > 70 ? Math.min(100, 50 + (humidity - 70) * 1.5) : 30;
+                const aqiRiskMap = { 1: 25, 2: 45, 3: 65, 4: 80, 5: 92, 6: 100 };
+                const aqiRisk = aqiRiskMap[aqi] || 60;
+
+                let precipRisk = precipitation === 0 ? 30 : precipitation < 5 ? 50 : Math.min(100, 65 + precipitation * 3);
+                const windRisk = windSpeed < 10 ? 30 : windSpeed < 20 ? 50 : Math.min(100, 60 + (windSpeed - 20) * 2);
+                const timeRisk = (hour >= 4 && hour <= 9) ? 60 : (hour >= 10 && hour <= 15) ? 40 : 35;
+
+                // Personal factors - use current state (we can't predict future personal state)
+                const sleepRisk = calculateSleepRisk(userState.sleep);
+                const stressRisk = calculateStressRisk(userState.stress);
+                const foodRisk = calculateFoodRisk(userState.ateToday, userState.calories, userState.sufficientProtein);
+                const hydrationRisk = calculateHydrationRisk(userState.drankToday, userState.fluidOz, userState.includedWater);
+                const caffeineRisk = calculateCaffeineRisk(userState.caffeine);
+                const alcoholRisk = calculateAlcoholRisk(userState.alcohol);
+                const exerciseRisk = calculateExerciseRisk(userState.exercise);
+                const marijuanaRisk = calculateMarijuanaRisk(userState.marijuana);
+                const lightExposureRisk = calculateLightExposureRisk(userState.lightExposure);
+                const scentsRisk = calculateScentsRisk(userState.scents);
+                const menstrualRisk = calculateMenstrualRisk(userState.menstrualDays, userState.menstrualNotApplicable);
+
+                // Calculate weighted risk for this hour
+                const weights = {
+                    pressure: 0.17, humidity: 0.09, temperature: 0.09, aqi: 0.06,
+                    precipitation: 0.04, wind: 0.02, time: 0.04, sleep: 0.13,
+                    stress: 0.08, food: 0.05, hydration: 0.05, caffeine: 0.04,
+                    alcohol: 0.03, exercise: 0.03, marijuana: 0.02, lightExposure: 0.03,
+                    scents: 0.02, menstrual: 0.05
+                };
+
+                let riskIndex =
+                    pressureRisk * weights.pressure +
+                    humidityRisk * weights.humidity +
+                    tempRisk * weights.temperature +
+                    aqiRisk * weights.aqi +
+                    precipRisk * weights.precipitation +
+                    windRisk * weights.wind +
+                    timeRisk * weights.time +
+                    sleepRisk * weights.sleep +
+                    stressRisk * weights.stress +
+                    foodRisk * weights.food +
+                    hydrationRisk * weights.hydration +
+                    caffeineRisk * weights.caffeine +
+                    alcoholRisk * weights.alcohol +
+                    exerciseRisk * weights.exercise +
+                    marijuanaRisk * weights.marijuana +
+                    lightExposureRisk * weights.lightExposure +
+                    scentsRisk * weights.scents +
+                    menstrualRisk * weights.menstrual;
+
+                // Apply sensitivity multiplier
+                const sensitivityMultiplier = 0.80 + (userState.frequency * 0.20);
+                riskIndex *= sensitivityMultiplier;
+                riskIndex = Math.max(0, Math.min(100, Math.round(riskIndex)));
+
+                return {
+                    value: riskIndex / 100, // Normalize to 0-1 for graph coloring
+                    label: hourTime.getHours() + 'h'
+                };
+            });
+
+            // Generate the line graph
+            const graphHTML = generateLineGraph(predictions, 600, 120, null);
+
+            // Display the graph
+            document.getElementById('predictionGraphContainer').innerHTML = graphHTML;
+            document.getElementById('predictionGraphSection').style.display = 'block';
         }
 
         // Risk calculation functions (return 0-100 scale)
@@ -2100,13 +2334,27 @@
             // Too little (< 6) or too much (> 9) = higher risk
             if (sleepHours === null) sleepHours = 7; // Default if not filled
 
-            if (sleepHours < 4) return 80; // Very little sleep = very high risk
-            if (sleepHours >= 4 && sleepHours < 6) return 60; // Poor sleep
-            if (sleepHours >= 6 && sleepHours < 7) return 30; // Slightly low
-            if (sleepHours >= 7 && sleepHours <= 8) return 10; // Optimal
-            if (sleepHours > 8 && sleepHours <= 9) return 30; // Slightly high
-            if (sleepHours > 9 && sleepHours <= 10) return 50; // Too much
-            return 70; // Excessive sleep (>10 hrs)
+            let risk = 0;
+            if (sleepHours < 4) risk = 80; // Very little sleep = very high risk
+            else if (sleepHours >= 4 && sleepHours < 6) risk = 60; // Poor sleep
+            else if (sleepHours >= 6 && sleepHours < 7) risk = 30; // Slightly low
+            else if (sleepHours >= 7 && sleepHours <= 8) risk = 10; // Optimal
+            else if (sleepHours > 8 && sleepHours <= 9) risk = 30; // Slightly high
+            else if (sleepHours > 9 && sleepHours <= 10) risk = 50; // Too much
+            else risk = 70; // Excessive sleep (>10 hrs)
+
+            // Adjust based on sleep quality if provided
+            if (userState.sleepQuality !== null) {
+                const quality = userState.sleepQuality;
+                if (quality === 0) risk += 20;      // Awful
+                else if (quality === 1) risk += 15; // Terrible
+                else if (quality === 2) risk += 10; // Meh
+                else if (quality === 3) risk += 0;  // Decent (neutral)
+                else if (quality === 4) risk -= 5;  // Good
+                else if (quality === 5) risk -= 10; // Excellent
+            }
+
+            return Math.max(5, Math.min(95, risk));
         }
 
         function calculateStressRisk(stress) {
@@ -2135,7 +2383,17 @@
             // Reduce risk if sufficient protein
             if (sufficientProtein && risk > 10) risk -= 10;
 
-            return Math.max(10, risk);
+            // Add food trigger risk adjustments
+            const triggers = userState.foodTriggers;
+            if (triggers.chocolate) risk += 8;        // Tyramine + phenylethylamine + caffeine
+            if (triggers.agedCheese) risk += 10;      // High tyramine content
+            if (triggers.curedMeats) risk += 12;      // Tyramine + nitrites (highest risk)
+            if (triggers.pickledFood) risk += 8;      // Histamines
+            if (triggers.candy) risk += 7;            // Aspartame + sulfites
+            if (triggers.saltySnacks) risk += 9;      // MSG + high sodium
+            if (triggers.citrusFruit) risk += 3;      // Lower weight trigger
+
+            return Math.max(10, Math.min(95, risk));
         }
 
         function calculateHydrationRisk(drankToday, fluidOz, includedWater) {
