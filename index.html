@@ -473,6 +473,60 @@
             background: #999;
         }
 
+        .factor-marker-tooltip {
+            display: none;
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            width: 200px;
+            font-size: 12px;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            white-space: pre-line;
+        }
+
+        .factor-marker:hover .factor-marker-tooltip {
+            display: block;
+        }
+
+        .factor-marker-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #333;
+        }
+
+        .pressure-trend {
+            font-size: 12px;
+            margin-top: 5px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .pressure-trend.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .pressure-trend.alert {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .pressure-trend.stable {
+            background: #dcfce7;
+            color: #166534;
+        }
+
         /* Sleep Quality Block Scale */
         .sleep-block-scale {
             display: flex;
@@ -1884,6 +1938,70 @@
             return 20; // Mid-cycle
         }
 
+        function getFactorTooltip(factorName, factorValue, weatherData) {
+            const current = weatherData.current;
+            const history = weatherData.history;
+
+            switch(factorName) {
+                case 'Barometric Pressure':
+                    let pressureText = `Current: ${current.pressure_mb} mb`;
+                    if (history && history.hour && history.hour.length > 0) {
+                        const avgHistorical = history.hour.reduce((sum, h) => sum + h.pressure_mb, 0) / history.hour.length;
+                        const change = current.pressure_mb - avgHistorical;
+                        const changeText = change > 0 ? `↑ ${change.toFixed(1)}mb` : `↓ ${Math.abs(change).toFixed(1)}mb`;
+                        pressureText += `\n24hr Change: ${changeText}`;
+                        if (Math.abs(change) > 5) {
+                            pressureText += `\n\nRapid pressure changes are a strong migraine trigger`;
+                        }
+                    }
+                    return pressureText;
+
+                case 'Temperature':
+                    let tempText = `Current: ${current.temp_c}°C / ${current.temp_f}°F`;
+                    if (history && history.hour && history.hour.length > 0) {
+                        const avgHistorical = history.hour.reduce((sum, h) => sum + h.temp_c, 0) / history.hour.length;
+                        const change = current.temp_c - avgHistorical;
+                        const changeText = change > 0 ? `↑ ${change.toFixed(1)}°C` : `↓ ${Math.abs(change).toFixed(1)}°C`;
+                        tempText += `\n24hr Change: ${changeText}`;
+                        if (Math.abs(change) > 5) {
+                            tempText += `\n\nRapid temperature changes can trigger migraines`;
+                        } else if (current.temp_c >= 18 && current.temp_c <= 24) {
+                            tempText += `\n\nTemperature in comfortable range`;
+                        } else if (current.temp_c > 30) {
+                            tempText += `\n\nHigh heat can trigger migraines through dehydration`;
+                        } else if (current.temp_c < 10) {
+                            tempText += `\n\nCold temperatures can cause vascular constriction`;
+                        }
+                    }
+                    return tempText;
+
+                default:
+                    return factorValue;
+            }
+        }
+
+        function getPressureTrendHTML(weatherData) {
+            if (!weatherData.history || !weatherData.history.hour || weatherData.history.hour.length === 0) {
+                return '';
+            }
+
+            const current = weatherData.current.pressure_mb;
+            const avgHistorical = weatherData.history.hour.reduce((sum, h) => sum + h.pressure_mb, 0) / weatherData.history.hour.length;
+            const change = current - avgHistorical;
+
+            if (Math.abs(change) < 3) {
+                return '<div class="pressure-trend stable">✓ Pressure stable</div>';
+            } else if (change < -5) {
+                return `<div class="pressure-trend alert">⚠️ Pressure dropping rapidly (${Math.abs(change).toFixed(1)}mb in 24h)</div>`;
+            } else if (change < 0) {
+                return `<div class="pressure-trend warning">⚠ Pressure dropping (${Math.abs(change).toFixed(1)}mb in 24h)</div>`;
+            } else if (change > 5) {
+                return `<div class="pressure-trend warning">⚠ Pressure rising rapidly (+${change.toFixed(1)}mb in 24h)</div>`;
+            } else {
+                return `<div class="pressure-trend stable">✓ Pressure rising slowly (+${change.toFixed(1)}mb in 24h)</div>`;
+            }
+        }
+
         function displayFactors(factors, weatherData) {
             const container = document.getElementById('factorsContainer');
             const current = weatherData.current;
@@ -2056,10 +2174,15 @@
 
             container.innerHTML = factorDisplays.map(factor => {
                 const isSleep = factor.name === 'Sleep Quality';
+                const tooltipText = getFactorTooltip(factor.name, factor.value, weatherData);
+                const pressureTrend = factor.name === 'Barometric Pressure' ? getPressureTrendHTML(weatherData) : '';
+
                 const scaleHTML = isSleep
                     ? generateSleepBlockScale(userState.sleep, !factor.filled)
                     : `<div class="factor-scale">
-                        <div class="factor-marker" style="left: ${factor.risk}%"></div>
+                        <div class="factor-marker" style="left: ${factor.risk}%">
+                            <div class="factor-marker-tooltip">${tooltipText}</div>
+                        </div>
                        </div>`;
 
                 return `
@@ -2077,6 +2200,7 @@
                             <div class="factor-value-underline"></div>
                         </div>
                     </div>
+                    ${pressureTrend}
                     ${scaleHTML}
                     ${!factor.filled ? '<div class="factor-prompt">Click to fill out in Advanced Mode</div>' : ''}
                 </div>
