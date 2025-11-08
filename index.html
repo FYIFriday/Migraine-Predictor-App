@@ -2231,8 +2231,8 @@
                 };
             });
 
-            // Generate the line graph
-            const graphHTML = generateLineGraph(predictions, 600, 120, null);
+            // Generate the line graph with risk-based coloring and labels
+            const graphHTML = generateLineGraph(predictions, 600, 140, 'risk', true);
 
             // Display the graph
             document.getElementById('predictionGraphContainer').innerHTML = graphHTML;
@@ -2784,10 +2784,10 @@
         }
 
         // Generate color-coded SVG line graph for 12-hour predictions
-        function generateLineGraph(dataPoints, width = 200, height = 60, lineColor = null) {
+        function generateLineGraph(dataPoints, width = 200, height = 60, lineColor = null, showLabels = false) {
             if (!dataPoints || dataPoints.length < 2) return '';
 
-            const padding = 5;
+            const padding = showLabels ? 20 : 5;
             const graphWidth = width - (padding * 2);
             const graphHeight = height - (padding * 2);
 
@@ -2818,7 +2818,7 @@
                     // Red for high (> 0.7), Yellow for mid (0.3-0.7), Green for low (< 0.3)
                     let segmentColor = normalizedVal > 0.7 ? '#ef4444' : normalizedVal > 0.3 ? '#eab308' : '#22c55e';
                     pathElements += `<path d="M ${points[i].x} ${points[i].y} L ${points[i + 1].x} ${points[i + 1].y}"
-                                          stroke="${segmentColor}" stroke-width="2" fill="none"/>`;
+                                          stroke="${segmentColor}" stroke-width="3" fill="none"/>`;
                 }
             } else {
                 const color = lineColor || '#4CAF50';
@@ -2827,13 +2827,26 @@
 
             // Add dots at each point
             const dots = points.map(p =>
-                `<circle cx="${p.x}" cy="${p.y}" r="2" fill="#333"/>`
+                `<circle cx="${p.x}" cy="${p.y}" r="3" fill="#fff" stroke="#333" stroke-width="1"/>`
             ).join('');
+
+            // Add labels if requested
+            let labels = '';
+            if (showLabels && dataPoints.length > 0) {
+                labels = points.map((p, i) => {
+                    // Show every 2nd label to avoid crowding
+                    if (i % 2 === 0) {
+                        return `<text x="${p.x}" y="${height - 2}" text-anchor="middle" font-size="10" fill="#888">${p.label}</text>`;
+                    }
+                    return '';
+                }).join('');
+            }
 
             return `
                 <svg width="${width}" height="${height}" style="display: block;">
                     ${pathElements}
                     ${dots}
+                    ${labels}
                 </svg>
             `;
         }
@@ -3017,15 +3030,15 @@
                     risk: factors.pressure,
                     tooltip: 'Atmospheric pressure changes are strongly associated with migraine onset. Rapid changes (especially drops) are more significant than absolute values.',
                     filled: true,
+                    hasGraph: true,
+                    graphType: 'pressure-12hr',
                     subcategories: [
                         {
                             name: 'Wind Speed',
                             value: `${current.wind_kph} km/h`,
                             risk: factors.wind,
                             tooltip: 'Wind speed helps indicate how QUICKLY barometric changes may be happening. High winds and rapid changes suggest moving weather fronts.',
-                            filled: true,
-                            hasGraph: true,
-                            graphType: 'pressure-12hr'
+                            filled: true
                         }
                     ]
                 },
@@ -3034,7 +3047,9 @@
                     value: `${current.temp_c}°C / ${current.temp_f}°F`,
                     risk: factors.temperature,
                     tooltip: 'Both temperature extremes and rapid changes (5°C within 1-3 days) can trigger migraines through vascular mechanisms.',
-                    filled: true
+                    filled: true,
+                    hasGraph: true,
+                    graphType: 'temperature-12hr'
                 },
                 {
                     name: 'Humidity',
@@ -3042,6 +3057,8 @@
                     risk: factors.humidity,
                     tooltip: 'High humidity (>70%) is associated with 28% higher migraine odds, particularly during warm seasons (April-September).',
                     filled: true,
+                    hasGraph: true,
+                    graphType: 'humidity-12hr',
                     subcategories: [
                         {
                             name: 'Precipitation',
@@ -3108,21 +3125,24 @@
                     value: alcoholInfo.value,
                     risk: factors.alcohol,
                     tooltip: 'Alcohol causes vasodilation and dehydration, both of which can trigger migraines. Even moderate amounts can be problematic.',
-                    filled: alcoholInfo.filled
+                    filled: alcoholInfo.filled,
+                    greyscale: true
                 },
                 {
                     name: 'Exercise (24hrs)',
                     value: exerciseInfo.value,
                     risk: factors.exercise,
                     tooltip: 'Exercise has a complex relationship with migraines. Regular moderate exercise is protective, but intense exercise or overexertion can trigger attacks.',
-                    filled: exerciseInfo.filled
+                    filled: exerciseInfo.filled,
+                    greyscale: true
                 },
                 {
                     name: 'Marijuana (24hrs)',
                     value: marijuanaInfo.value,
                     risk: factors.marijuana,
                     tooltip: 'Marijuana has a complex relationship with migraines. Some find relief, while others experience triggers. Individual responses vary significantly.',
-                    filled: marijuanaInfo.filled
+                    filled: marijuanaInfo.filled,
+                    greyscale: true
                 },
                 {
                     name: 'Light Exposure Today',
@@ -3171,6 +3191,12 @@
                     if (factor.graphType === 'pressure-12hr') {
                         const pressureData = weatherData.forecast12hr.map(h => ({ value: h.pressure_mb, label: new Date(h.time).getHours() + 'h' }));
                         graphHTML = generateLineGraph(pressureData, 200, 60, '#4CAF50');
+                    } else if (factor.graphType === 'temperature-12hr') {
+                        const tempData = weatherData.forecast12hr.map(h => ({ value: h.temp_c, label: new Date(h.time).getHours() + 'h' }));
+                        graphHTML = generateLineGraph(tempData, 200, 60, '#f97316');
+                    } else if (factor.graphType === 'humidity-12hr') {
+                        const humidityData = weatherData.forecast12hr.map(h => ({ value: h.humidity, label: new Date(h.time).getHours() + 'h' }));
+                        graphHTML = generateLineGraph(humidityData, 200, 60, '#2196F3');
                     } else if (factor.graphType === 'humidity-precip-dual') {
                         const humidityData = weatherData.forecast12hr.map(h => ({ value: h.humidity }));
                         const precipData = weatherData.forecast12hr.map(h => ({ value: h.precip_mm }));
@@ -3240,7 +3266,7 @@
                 }
 
                 return `
-                    <div class="factor-item factor-${factorClass} ${!factor.filled ? 'greyed-out' : ''}" ${!factor.filled ? 'onclick="openAdvancedMode()"' : ''}>
+                    <div class="factor-item factor-${factorClass} ${!factor.filled || factor.greyscale ? 'greyed-out' : ''}" ${!factor.filled ? 'onclick="openAdvancedMode()"' : ''}>
                         ${mainFactorHTML}
                         ${subcategoriesHTML}
                     </div>
