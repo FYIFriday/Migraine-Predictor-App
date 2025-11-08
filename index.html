@@ -1333,13 +1333,13 @@
             }
 
             try {
-                // Fetch current weather data
-                const currentResponse = await fetch(
-                    `https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(location)}&aqi=yes`
+                // Fetch forecast weather data (includes current + 12hr forecast)
+                const forecastResponse = await fetch(
+                    `https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(location)}&days=1&aqi=yes&hour=12`
                 );
 
-                if (!currentResponse.ok) {
-                    if (currentResponse.status === 400 && location === 'auto:ip') {
+                if (!forecastResponse.ok) {
+                    if (forecastResponse.status === 400 && location === 'auto:ip') {
                         // IP location failed, show manual input
                         showLocationModal();
                         return;
@@ -1347,7 +1347,17 @@
                     throw new Error('Weather API request failed');
                 }
 
-                weatherData = await currentResponse.json();
+                weatherData = await forecastResponse.json();
+
+                // Extract forecast hours for 6hr and 12hr windows
+                if (weatherData.forecast && weatherData.forecast.forecastday[0]) {
+                    const forecastHours = weatherData.forecast.forecastday[0].hour;
+                    const currentHour = new Date().getHours();
+
+                    // Get next 6 hours and next 12 hours for prediction
+                    weatherData.forecast6hr = forecastHours.slice(currentHour + 1, currentHour + 7);
+                    weatherData.forecast12hr = forecastHours.slice(currentHour + 1, currentHour + 13);
+                }
 
                 // Fetch historical data (24 hours ago)
                 const yesterday = new Date();
@@ -1425,8 +1435,14 @@
         function toggleAdvanced() {
             const content = document.getElementById('advancedContent');
             const toggle = document.querySelector('.advanced-toggle');
+            const wasHidden = !content.classList.contains('show');
             content.classList.toggle('show');
             toggle.classList.toggle('open');
+
+            // If opening for first time, default certain factors to 0
+            if (wasHidden) {
+                setAdvancedModeDefaults();
+            }
         }
 
         function openAdvancedMode() {
@@ -1435,9 +1451,31 @@
             if (!content.classList.contains('show')) {
                 content.classList.add('show');
                 toggle.classList.add('open');
+                setAdvancedModeDefaults();
             }
             // Scroll to Advanced Mode
             toggle.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function setAdvancedModeDefaults() {
+            // When user opens Advanced Mode, default these factors to 0 if not yet filled
+            if (!userState.filledFields.stress && userState.stress === null) {
+                userState.stress = 0;
+                userState.filledFields.stress = true;
+            }
+            if (!userState.filledFields.alcohol) {
+                userState.alcohol = 0;
+                userState.filledFields.alcohol = true;
+            }
+            if (!userState.filledFields.exercise) {
+                userState.exercise = 0;
+                userState.filledFields.exercise = true;
+            }
+            if (!userState.filledFields.marijuana) {
+                userState.marijuana = 0;
+                userState.filledFields.marijuana = true;
+            }
+            if (weatherData) calculateAndDisplayMigraineIndex();
         }
 
         function setAteToday(value) {
@@ -2123,6 +2161,7 @@
             const current = weatherData.current;
             const history6hr = weatherData.history6hr;
             const history24hr = weatherData.history24hr;
+            const forecast6hr = weatherData.forecast6hr;
 
             switch(factorName) {
                 case 'Barometric Pressure':
@@ -2130,12 +2169,17 @@
                     if (history6hr && history6hr.length > 0) {
                         const avg6hr = history6hr.reduce((sum, h) => sum + h.pressure_mb, 0) / history6hr.length;
                         const change6hr = current.pressure_mb - avg6hr;
-                        pressureText += `\n6hr Change: ${change6hr > 0 ? '↑' : '↓'} ${Math.abs(change6hr).toFixed(1)}mb`;
+                        pressureText += `\n6hr History: ${change6hr > 0 ? '↑' : '↓'} ${Math.abs(change6hr).toFixed(1)}mb`;
+                    }
+                    if (forecast6hr && forecast6hr.length > 0) {
+                        const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.pressure_mb, 0) / forecast6hr.length;
+                        const predictedChange = avg6hrForecast - current.pressure_mb;
+                        pressureText += `\n6hr Forecast: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(1)}mb`;
                     }
                     if (history24hr && history24hr.length > 0) {
                         const avg24hr = history24hr.reduce((sum, h) => sum + h.pressure_mb, 0) / history24hr.length;
                         const change24hr = current.pressure_mb - avg24hr;
-                        pressureText += `\n24hr Change: ${change24hr > 0 ? '↑' : '↓'} ${Math.abs(change24hr).toFixed(1)}mb`;
+                        pressureText += `\n24hr History: ${change24hr > 0 ? '↑' : '↓'} ${Math.abs(change24hr).toFixed(1)}mb`;
                         if (Math.abs(change24hr) > 5) {
                             pressureText += `\n\nRapid pressure changes are a strong migraine trigger`;
                         }
@@ -2147,12 +2191,17 @@
                     if (history6hr && history6hr.length > 0) {
                         const avg6hr = history6hr.reduce((sum, h) => sum + h.temp_c, 0) / history6hr.length;
                         const change6hr = current.temp_c - avg6hr;
-                        tempText += `\n6hr Change: ${change6hr > 0 ? '↑' : '↓'} ${Math.abs(change6hr).toFixed(1)}°C`;
+                        tempText += `\n6hr History: ${change6hr > 0 ? '↑' : '↓'} ${Math.abs(change6hr).toFixed(1)}°C`;
+                    }
+                    if (forecast6hr && forecast6hr.length > 0) {
+                        const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.temp_c, 0) / forecast6hr.length;
+                        const predictedChange = avg6hrForecast - current.temp_c;
+                        tempText += `\n6hr Forecast: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(1)}°C`;
                     }
                     if (history24hr && history24hr.length > 0) {
                         const avg24hr = history24hr.reduce((sum, h) => sum + h.temp_c, 0) / history24hr.length;
                         const change24hr = current.temp_c - avg24hr;
-                        tempText += `\n24hr Change: ${change24hr > 0 ? '↑' : '↓'} ${Math.abs(change24hr).toFixed(1)}°C`;
+                        tempText += `\n24hr History: ${change24hr > 0 ? '↑' : '↓'} ${Math.abs(change24hr).toFixed(1)}°C`;
                         if (Math.abs(change24hr) > 5) {
                             tempText += `\n\nRapid temperature changes can trigger migraines`;
                         } else if (current.temp_c >= 18 && current.temp_c <= 24) {
@@ -2170,12 +2219,17 @@
                     if (history6hr && history6hr.length > 0) {
                         const avg6hr = history6hr.reduce((sum, h) => sum + h.humidity, 0) / history6hr.length;
                         const change6hr = current.humidity - avg6hr;
-                        humidityText += `\n6hr Change: ${change6hr > 0 ? '↑' : '↓'} ${Math.abs(change6hr).toFixed(0)}%`;
+                        humidityText += `\n6hr History: ${change6hr > 0 ? '↑' : '↓'} ${Math.abs(change6hr).toFixed(0)}%`;
+                    }
+                    if (forecast6hr && forecast6hr.length > 0) {
+                        const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.humidity, 0) / forecast6hr.length;
+                        const predictedChange = avg6hrForecast - current.humidity;
+                        humidityText += `\n6hr Forecast: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(0)}%`;
                     }
                     if (history24hr && history24hr.length > 0) {
                         const avg24hr = history24hr.reduce((sum, h) => sum + h.humidity, 0) / history24hr.length;
                         const change24hr = current.humidity - avg24hr;
-                        humidityText += `\n24hr Change: ${change24hr > 0 ? '↑' : '↓'} ${Math.abs(change24hr).toFixed(0)}%`;
+                        humidityText += `\n24hr History: ${change24hr > 0 ? '↑' : '↓'} ${Math.abs(change24hr).toFixed(0)}%`;
                         if (current.humidity > 70) {
                             humidityText += `\n\nHigh humidity increases migraine risk`;
                         }
@@ -2188,12 +2242,17 @@
                     if (history6hr && history6hr.length > 0 && history6hr[0].air_quality) {
                         const avg6hr = history6hr.reduce((sum, h) => sum + (h.air_quality?.['us-epa-index'] || 1), 0) / history6hr.length;
                         const change6hr = aqiValue - avg6hr;
-                        aqiText += `\n6hr Change: ${change6hr > 0 ? '↑' : '↓'} ${Math.abs(change6hr).toFixed(0)}`;
+                        aqiText += `\n6hr History: ${change6hr > 0 ? '↑' : '↓'} ${Math.abs(change6hr).toFixed(0)}`;
+                    }
+                    if (forecast6hr && forecast6hr.length > 0 && forecast6hr[0].air_quality) {
+                        const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + (h.air_quality?.['us-epa-index'] || 1), 0) / forecast6hr.length;
+                        const predictedChange = avg6hrForecast - aqiValue;
+                        aqiText += `\n6hr Forecast: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(0)}`;
                     }
                     if (history24hr && history24hr.length > 0 && history24hr[0].air_quality) {
                         const avg24hr = history24hr.reduce((sum, h) => sum + (h.air_quality?.['us-epa-index'] || 1), 0) / history24hr.length;
                         const change24hr = aqiValue - avg24hr;
-                        aqiText += `\n24hr Change: ${change24hr > 0 ? '↑' : '↓'} ${Math.abs(change24hr).toFixed(0)}`;
+                        aqiText += `\n24hr History: ${change24hr > 0 ? '↑' : '↓'} ${Math.abs(change24hr).toFixed(0)}`;
                         if (aqiValue > 3) {
                             aqiText += `\n\nPoor air quality increases migraine risk`;
                         }
@@ -2201,17 +2260,18 @@
                     return aqiText;
 
                 case 'Precipitation':
-                    if (current.precip_mm === 0) {
-                        return ''; // No hover for zero precipitation
-                    }
                     let precipText = `Current: ${current.precip_mm} mm`;
                     if (history6hr && history6hr.length > 0) {
                         const avg6hr = history6hr.reduce((sum, h) => sum + h.precip_mm, 0) / history6hr.length;
-                        precipText += `\n6hr Average: ${avg6hr.toFixed(1)} mm`;
+                        precipText += `\n6hr History: ${avg6hr.toFixed(1)} mm`;
+                    }
+                    if (forecast6hr && forecast6hr.length > 0) {
+                        const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.precip_mm, 0) / forecast6hr.length;
+                        precipText += `\n6hr Forecast: ${avg6hrForecast.toFixed(1)} mm`;
                     }
                     if (history24hr && history24hr.length > 0) {
                         const avg24hr = history24hr.reduce((sum, h) => sum + h.precip_mm, 0) / history24hr.length;
-                        precipText += `\n24hr Average: ${avg24hr.toFixed(1)} mm`;
+                        precipText += `\n24hr History: ${avg24hr.toFixed(1)} mm`;
                         precipText += `\n\nRain often accompanies pressure changes`;
                     }
                     return precipText;
@@ -2221,12 +2281,17 @@
                     if (history6hr && history6hr.length > 0) {
                         const avg6hr = history6hr.reduce((sum, h) => sum + h.wind_kph, 0) / history6hr.length;
                         const change6hr = current.wind_kph - avg6hr;
-                        windText += `\n6hr Change: ${change6hr > 0 ? '↑' : '↓'} ${Math.abs(change6hr).toFixed(1)} km/h`;
+                        windText += `\n6hr History: ${change6hr > 0 ? '↑' : '↓'} ${Math.abs(change6hr).toFixed(1)} km/h`;
+                    }
+                    if (forecast6hr && forecast6hr.length > 0) {
+                        const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.wind_kph, 0) / forecast6hr.length;
+                        const predictedChange = avg6hrForecast - current.wind_kph;
+                        windText += `\n6hr Forecast: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(1)} km/h`;
                     }
                     if (history24hr && history24hr.length > 0) {
                         const avg24hr = history24hr.reduce((sum, h) => sum + h.wind_kph, 0) / history24hr.length;
                         const change24hr = current.wind_kph - avg24hr;
-                        windText += `\n24hr Change: ${change24hr > 0 ? '↑' : '↓'} ${Math.abs(change24hr).toFixed(1)} km/h`;
+                        windText += `\n24hr History: ${change24hr > 0 ? '↑' : '↓'} ${Math.abs(change24hr).toFixed(1)} km/h`;
                         if (current.wind_kph > 24) {
                             windText += `\n\nHigh winds associated with weather systems`;
                         }
