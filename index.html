@@ -432,6 +432,10 @@
             border-radius: 8px;
         }
 
+        .factor-item.greyed-out .factor-scale {
+            background: #d0d0d0;
+        }
+
         .factor-marker {
             position: absolute;
             width: 12px;
@@ -442,6 +446,50 @@
             top: 1.5px;
             transform: translateX(-50%);
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .factor-item.greyed-out .factor-marker {
+            background: #999;
+        }
+
+        /* Sleep Quality Block Scale */
+        .sleep-block-scale {
+            display: flex;
+            gap: 1px;
+            height: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .sleep-block {
+            flex: 1;
+            position: relative;
+        }
+
+        .sleep-block.red {
+            background: #fca5a5;
+        }
+
+        .sleep-block.yellow {
+            background: #fde047;
+        }
+
+        .sleep-block.green {
+            background: #86efac;
+        }
+
+        .sleep-block.grey {
+            background: #d0d0d0;
+        }
+
+        .sleep-block.active::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
         }
 
         /* Location Input Modal */
@@ -697,39 +745,12 @@
                                 <span class="tooltip">Poor sleep increases oxidative stress in the brain and elevates cortisol, both of which can trigger migraines. Both too little and too much sleep are triggers. Optimal is 7-8 hours.</span>
                             </span>
                         </label>
-                        <select id="sleepSelect" onchange="updateSleep(this.value)">
-                            <option value="0" style="background-color: #fca5a5;">0 hrs</option>
-                            <option value="0.5" style="background-color: #fca5a5;">0.5 hrs</option>
-                            <option value="1" style="background-color: #fca5a5;">1 hr</option>
-                            <option value="1.5" style="background-color: #fca5a5;">1.5 hrs</option>
-                            <option value="2" style="background-color: #fca5a5;">2 hrs</option>
-                            <option value="2.5" style="background-color: #fca5a5;">2.5 hrs</option>
-                            <option value="3" style="background-color: #fca5a5;">3 hrs</option>
-                            <option value="3.5" style="background-color: #fde047;">3.5 hrs</option>
-                            <option value="4" style="background-color: #fde047;">4 hrs</option>
-                            <option value="4.5" style="background-color: #fde047;">4.5 hrs</option>
-                            <option value="5" style="background-color: #fde047;">5 hrs</option>
-                            <option value="5.5" style="background-color: #fde047;">5.5 hrs</option>
-                            <option value="6" style="background-color: #86efac;">6 hrs</option>
-                            <option value="6.5" style="background-color: #86efac;">6.5 hrs</option>
-                            <option value="7" style="background-color: #86efac;" selected>7 hrs</option>
-                            <option value="7.5" style="background-color: #86efac;">7.5 hrs</option>
-                            <option value="8" style="background-color: #86efac;">8 hrs</option>
-                            <option value="8.5" style="background-color: #86efac;">8.5 hrs</option>
-                            <option value="9" style="background-color: #86efac;">9 hrs</option>
-                            <option value="9.5" style="background-color: #86efac;">9.5 hrs</option>
-                            <option value="10" style="background-color: #fde047;">10 hrs</option>
-                            <option value="10.5" style="background-color: #fde047;">10.5 hrs</option>
-                            <option value="11" style="background-color: #fde047;">11 hrs</option>
-                            <option value="11.5" style="background-color: #fde047;">11.5 hrs</option>
-                            <option value="12" style="background-color: #fde047;">12 hrs</option>
-                            <option value="12.5" style="background-color: #fca5a5;">12.5 hrs</option>
-                            <option value="13" style="background-color: #fca5a5;">13 hrs</option>
-                            <option value="13.5" style="background-color: #fca5a5;">13.5 hrs</option>
-                            <option value="14" style="background-color: #fca5a5;">14 hrs</option>
-                            <option value="14.5" style="background-color: #fca5a5;">14.5 hrs</option>
-                            <option value="15" style="background-color: #fca5a5;">15+ hrs</option>
-                        </select>
+                        <div class="slider-container">
+                            <span>0 hrs</span>
+                            <input type="range" min="0" max="15" step="0.5" value="7" id="sleepSlider" oninput="updateSleep(this.value)">
+                            <span>15+ hrs</span>
+                            <span class="slider-value" id="sleepValue">7 hrs</span>
+                        </div>
                     </div>
 
                     <!-- Caffeine Intake -->
@@ -907,6 +928,7 @@
             // Menstrual cycle
             menstrualDays: null,  // null means not filled out
             menstrualNotApplicable: false,
+            menstrualLastUpdated: null,  // Track when menstrual data was last set
             cookiesAccepted: false,
             // Tracking which fields have been modified
             filledFields: {
@@ -949,7 +971,14 @@
 
         function saveUserPreferences() {
             if (userState.cookiesAccepted) {
-                localStorage.setItem('userPreferences', JSON.stringify(userState));
+                // Only save frequency and menstrual cycle data
+                const toSave = {
+                    frequency: userState.frequency,
+                    menstrualDays: userState.menstrualDays,
+                    menstrualNotApplicable: userState.menstrualNotApplicable,
+                    menstrualLastUpdated: userState.menstrualLastUpdated
+                };
+                localStorage.setItem('userPreferences', JSON.stringify(toSave));
             }
         }
 
@@ -957,7 +986,46 @@
             const saved = localStorage.getItem('userPreferences');
             if (saved) {
                 const loaded = JSON.parse(saved);
-                userState = { ...userState, ...loaded };
+
+                // Load frequency
+                if (loaded.frequency) {
+                    userState.frequency = loaded.frequency;
+                }
+
+                // Load and auto-update menstrual cycle data
+                if (loaded.menstrualNotApplicable !== undefined) {
+                    userState.menstrualNotApplicable = loaded.menstrualNotApplicable;
+                }
+
+                if (loaded.menstrualDays !== null && loaded.menstrualLastUpdated && !loaded.menstrualNotApplicable) {
+                    // Calculate days passed since last update
+                    const lastUpdated = new Date(loaded.menstrualLastUpdated);
+                    const now = new Date();
+                    const daysPassed = Math.floor((now - lastUpdated) / (1000 * 60 * 60 * 24));
+
+                    // Decrement menstrual days
+                    let updatedDays = loaded.menstrualDays - daysPassed;
+
+                    // If cycle has passed (went negative), reset to 28-day cycle
+                    if (updatedDays < 0) {
+                        // Calculate how many days into new cycle
+                        updatedDays = 28 + (updatedDays % 28);
+                    }
+
+                    userState.menstrualDays = updatedDays;
+                    userState.menstrualLastUpdated = now.toISOString();
+                    userState.filledFields.menstrual = true;
+
+                    // Save the updated value
+                    saveUserPreferences();
+                } else if (loaded.menstrualDays !== null) {
+                    userState.menstrualDays = loaded.menstrualDays;
+                    userState.menstrualLastUpdated = loaded.menstrualLastUpdated;
+                    if (userState.menstrualDays !== null || userState.menstrualNotApplicable) {
+                        userState.filledFields.menstrual = true;
+                    }
+                }
+
                 applyLoadedPreferences();
             }
         }
@@ -966,49 +1034,7 @@
             // Apply frequency
             selectFrequency(userState.frequency);
 
-            // Apply food intake
-            if (userState.ateToday !== null) {
-                setAteToday(userState.ateToday);
-                if (userState.calories) document.getElementById('caloriesInput').value = userState.calories;
-                if (userState.sufficientProtein) document.getElementById('proteinCheckbox').checked = true;
-            }
-
-            // Apply hydration
-            if (userState.drankToday !== null) {
-                setDrankToday(userState.drankToday);
-                if (userState.fluidOz) document.getElementById('fluidOzInput').value = userState.fluidOz;
-                if (userState.includedWater) document.getElementById('waterCheckbox').checked = true;
-            }
-
-            // Apply stress
-            if (userState.stress !== null) {
-                document.getElementById('stressSlider').value = userState.stress;
-                document.getElementById('stressValue').textContent = userState.stress;
-            }
-
-            // Apply sleep
-            if (userState.sleep !== null) {
-                document.getElementById('sleepSelect').value = userState.sleep;
-            }
-
-            // Apply caffeine
-            if (userState.caffeine !== null) {
-                document.getElementById('caffeineSelect').value = userState.caffeine;
-            }
-            if (userState.caffeineDetail) {
-                document.getElementById('coffeeCupsInput').value = userState.caffeineDetail.cups || 0;
-                document.getElementById('energyDrinksInput').value = userState.caffeineDetail.energyDrinks || 0;
-                document.getElementById('teaCupsInput').value = userState.caffeineDetail.teaCups || 0;
-                document.getElementById('caffeineMedsInput').value = userState.caffeineDetail.meds || 0;
-            }
-
-            // Apply screen time
-            if (userState.screenTime !== null) {
-                document.getElementById('screenSlider').value = userState.screenTime;
-                document.getElementById('screenValue').textContent = userState.screenTime;
-            }
-
-            // Apply menstrual cycle
+            // Apply menstrual cycle only
             if (userState.menstrualNotApplicable) {
                 document.getElementById('menstrualSelect').value = 'not_applicable';
             } else if (userState.menstrualDays !== null) {
@@ -1049,12 +1075,13 @@
             }
 
             try {
-                const response = await fetch(
+                // Fetch current weather data
+                const currentResponse = await fetch(
                     `https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(location)}&aqi=yes`
                 );
 
-                if (!response.ok) {
-                    if (response.status === 400 && location === 'auto:ip') {
+                if (!currentResponse.ok) {
+                    if (currentResponse.status === 400 && location === 'auto:ip') {
                         // IP location failed, show manual input
                         showLocationModal();
                         return;
@@ -1062,7 +1089,28 @@
                     throw new Error('Weather API request failed');
                 }
 
-                weatherData = await response.json();
+                weatherData = await currentResponse.json();
+
+                // Fetch historical data (24 hours ago)
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayStr = yesterday.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+                try {
+                    const historyResponse = await fetch(
+                        `https://api.weatherapi.com/v1/history.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(location)}&dt=${yesterdayStr}`
+                    );
+
+                    if (historyResponse.ok) {
+                        const historyData = await historyResponse.json();
+                        // Add historical data to weatherData
+                        weatherData.history = historyData.forecast.forecastday[0];
+                    }
+                } catch (historyError) {
+                    console.warn('Historical data not available:', historyError);
+                    // Continue without historical data
+                }
+
                 document.getElementById('loadingState').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
                 calculateAndDisplayMigraineIndex();
@@ -1192,7 +1240,7 @@
         function updateSleep(value) {
             userState.sleep = parseFloat(value);
             userState.filledFields.sleep = true;
-            saveUserPreferences();
+            document.getElementById('sleepValue').textContent = value + ' hrs';
             if (weatherData) calculateAndDisplayMigraineIndex();
         }
 
@@ -1251,12 +1299,15 @@
             if (value === 'not_applicable') {
                 userState.menstrualNotApplicable = true;
                 userState.menstrualDays = null;
+                userState.menstrualLastUpdated = null;
             } else if (value === '') {
                 userState.menstrualNotApplicable = false;
                 userState.menstrualDays = null;
+                userState.menstrualLastUpdated = null;
             } else {
                 userState.menstrualNotApplicable = false;
                 userState.menstrualDays = parseInt(value);
+                userState.menstrualLastUpdated = new Date().toISOString();
             }
 
             saveUserPreferences();
@@ -1283,8 +1334,8 @@
 
             // Calculate base risk scores for each factor (0-100 scale)
             const factors = {
-                pressure: calculatePressureRisk(pressure),
-                temperature: calculateTemperatureRisk(temp),
+                pressure: calculatePressureRisk(pressure, weatherData.history),
+                temperature: calculateTemperatureRisk(temp, weatherData.history),
                 humidity: calculateHumidityRisk(humidity),
                 aqi: calculateAQIRisk(aqi),
                 precipitation: calculatePrecipitationRisk(precipitation),
@@ -1343,20 +1394,59 @@
         }
 
         // Risk calculation functions (return 0-100 scale)
-        function calculatePressureRisk(pressure) {
+        function calculatePressureRisk(pressure, historyData) {
             // Normal pressure: ~1013 mb. Deviations increase risk
             const deviation = Math.abs(pressure - 1013);
-            // High deviation = high risk. 15mb deviation = ~80 risk
-            return Math.min(100, 30 + (deviation / 15) * 80);
+            let risk = Math.min(100, 30 + (deviation / 15) * 80);
+
+            // If we have historical data, factor in rate of change
+            // Rapid pressure drops are MUCH more triggering than stable pressure
+            if (historyData && historyData.hour && historyData.hour.length > 0) {
+                // Get average pressure from 24 hours ago
+                const historicalHours = historyData.hour;
+                const avgHistoricalPressure = historicalHours.reduce((sum, h) => sum + h.pressure_mb, 0) / historicalHours.length;
+
+                // Calculate 24-hour pressure change
+                const pressureChange = pressure - avgHistoricalPressure;
+                const pressureDrop = pressureChange < 0 ? Math.abs(pressureChange) : 0;
+                const pressureRise = pressureChange > 0 ? pressureChange : 0;
+
+                // Pressure drops are more significant than rises
+                // A 10mb drop in 24h is highly triggering
+                if (pressureDrop > 0) {
+                    risk += Math.min(30, pressureDrop * 3); // Up to +30 risk for drops
+                } else if (pressureRise > 5) {
+                    risk += Math.min(15, pressureRise * 1.5); // Up to +15 risk for rapid rises
+                }
+            }
+
+            return Math.min(100, risk);
         }
 
-        function calculateTemperatureRisk(temp) {
+        function calculateTemperatureRisk(temp, historyData) {
             // Extreme temperatures (very hot or very cold) increase risk
             // Comfortable range: 18-24°C
-            if (temp >= 18 && temp <= 24) return 25;
-            if (temp < 18) return Math.min(100, 30 + (18 - temp) * 6);
-            if (temp > 24) return Math.min(100, 30 + (temp - 24) * 5);
-            return 35;
+            let risk;
+            if (temp >= 18 && temp <= 24) risk = 25;
+            else if (temp < 18) risk = Math.min(100, 30 + (18 - temp) * 6);
+            else if (temp > 24) risk = Math.min(100, 30 + (temp - 24) * 5);
+            else risk = 35;
+
+            // If we have historical data, factor in rapid temperature changes
+            if (historyData && historyData.hour && historyData.hour.length > 0) {
+                const historicalHours = historyData.hour;
+                const avgHistoricalTemp = historicalHours.reduce((sum, h) => sum + h.temp_c, 0) / historicalHours.length;
+
+                // Calculate 24-hour temperature change
+                const tempChange = Math.abs(temp - avgHistoricalTemp);
+
+                // Rapid temp changes (>5°C in 24h) increase risk
+                if (tempChange > 5) {
+                    risk += Math.min(20, (tempChange - 5) * 2); // Up to +20 risk
+                }
+            }
+
+            return Math.min(100, risk);
         }
 
         function calculateHumidityRisk(humidity) {
@@ -1664,7 +1754,15 @@
                 }
             ];
 
-            container.innerHTML = factorDisplays.map(factor => `
+            container.innerHTML = factorDisplays.map(factor => {
+                const isSleep = factor.name === 'Sleep Quality';
+                const scaleHTML = isSleep
+                    ? generateSleepBlockScale(userState.sleep, !factor.filled)
+                    : `<div class="factor-scale">
+                        <div class="factor-marker" style="left: ${factor.risk}%"></div>
+                       </div>`;
+
+                return `
                 <div class="factor-item ${!factor.filled ? 'greyed-out' : ''}" ${!factor.filled ? 'onclick="openAdvancedMode()"' : ''}>
                     <div class="factor-header">
                         <span class="factor-name">
@@ -1675,12 +1773,39 @@
                         </span>
                         <span class="factor-value">${factor.value}</span>
                     </div>
-                    <div class="factor-scale">
-                        <div class="factor-marker" style="left: ${factor.risk}%"></div>
-                    </div>
+                    ${scaleHTML}
                     ${!factor.filled ? '<div class="factor-prompt">Click to fill out in Advanced Mode</div>' : ''}
                 </div>
-            `).join('');
+                `;
+            }).join('');
+        }
+
+        function generateSleepBlockScale(sleepValue, isGreyedOut) {
+            if (sleepValue === null) sleepValue = 7;
+
+            // Define the 32 blocks with their colors and values
+            const blocks = [];
+
+            // 0-3 hrs = red (7 blocks)
+            for (let i = 0; i <= 3; i += 0.5) blocks.push({ value: i, color: 'red' });
+
+            // 3.5-5.5 hrs = yellow (5 blocks)
+            for (let i = 3.5; i <= 5.5; i += 0.5) blocks.push({ value: i, color: 'yellow' });
+
+            // 6-9.5 hrs = green (8 blocks)
+            for (let i = 6; i <= 9.5; i += 0.5) blocks.push({ value: i, color: 'green' });
+
+            // 10-12 hrs = yellow (5 blocks)
+            for (let i = 10; i <= 12; i += 0.5) blocks.push({ value: i, color: 'yellow' });
+
+            // 12.5-15+ hrs = red (7 blocks) - note: 15+ is represented as 15
+            for (let i = 12.5; i <= 15; i += 0.5) blocks.push({ value: i, color: 'red' });
+
+            return `<div class="sleep-block-scale">
+                ${blocks.map(block => `
+                    <div class="sleep-block ${isGreyedOut ? 'grey' : block.color} ${block.value === sleepValue ? 'active' : ''}"></div>
+                `).join('')}
+            </div>`;
         }
 
         function getAQILabel(aqi) {
