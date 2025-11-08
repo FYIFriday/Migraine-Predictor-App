@@ -13,7 +13,8 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-            background-color: #808080;
+            background: linear-gradient(135deg, #4a4a4a 0%, #6b6b6b 50%, #5a5a5a 100%);
+            min-height: 100vh;
             color: #333;
             padding: 20px;
             line-height: 1.6;
@@ -262,6 +263,10 @@
             -webkit-appearance: none;
         }
 
+        input[type="range"].sleep-slider {
+            background: #d0d0d0;
+        }
+
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -420,15 +425,31 @@
             color: #333;
         }
 
+        .factor-value-container {
+            text-align: right;
+        }
+
+        .factor-value-label {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 2px;
+        }
+
         .factor-value {
             font-weight: bold;
             color: #333;
         }
 
+        .factor-value-underline {
+            height: 1px;
+            background-color: #ccc;
+            margin-top: 5px;
+        }
+
         .factor-scale {
             position: relative;
             height: 15px;
-            background: linear-gradient(to right, #22c55e, #eab308, #ef4444);
+            background: linear-gradient(to right, #86efac, #fde047, #fca5a5);
             border-radius: 8px;
         }
 
@@ -450,6 +471,60 @@
 
         .factor-item.greyed-out .factor-marker {
             background: #999;
+        }
+
+        .factor-marker-tooltip {
+            display: none;
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            width: 200px;
+            font-size: 12px;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            white-space: pre-line;
+        }
+
+        .factor-marker:hover .factor-marker-tooltip {
+            display: block;
+        }
+
+        .factor-marker-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #333;
+        }
+
+        .pressure-trend {
+            font-size: 12px;
+            margin-top: 5px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .pressure-trend.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .pressure-trend.alert {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .pressure-trend.stable {
+            background: #dcfce7;
+            color: #166534;
         }
 
         /* Sleep Quality Block Scale */
@@ -645,6 +720,7 @@
                     <span>Moderate (50)</span>
                     <span>High (100)</span>
                 </div>
+                <div id="riskLevelText" style="margin-top: 20px; font-size: 16px; font-weight: 500; text-align: center; color: #555;"></div>
             </div>
 
             <!-- Visual Break -->
@@ -702,13 +778,26 @@
                             <button onclick="setDrankToday(true)">Yes</button>
                         </div>
                         <div class="sub-question" id="hydrationDetailsQuestion">
-                            <label>
-                                Estimated fluid intake (fl oz)
-                                <span class="info-icon">?
-                                    <span class="tooltip">Adults need approximately 64-100 fl oz (8-12 cups) of fluids per day, varying by body size, activity level, and climate. Adequate hydration helps prevent migraines.</span>
-                                </span>
-                            </label>
-                            <input type="number" id="fluidOzInput" placeholder="e.g., 64" min="0" onchange="updateHydration()" style="margin-bottom: 15px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                <div>
+                                    <label style="font-size: 14px; margin-bottom: 5px; display: block;">
+                                        Glasses of water (8oz)
+                                        <span class="info-icon">?
+                                            <span class="tooltip">1 glass = 8 fl oz. Adults need 8-12 glasses per day for adequate hydration. This helps track your water intake specifically.</span>
+                                        </span>
+                                    </label>
+                                    <input type="number" id="waterGlassesInput" min="0" max="30" value="0" placeholder="0" onchange="updateHydrationDetails()" style="width: 100%;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 14px; margin-bottom: 5px; display: block;">
+                                        Total fluid intake (fl oz)
+                                        <span class="info-icon">?
+                                            <span class="tooltip">Adults need approximately 64-100 fl oz (8-12 cups) of fluids per day, varying by body size, activity level, and climate. Adequate hydration helps prevent migraines.</span>
+                                        </span>
+                                    </label>
+                                    <input type="number" id="fluidOzInput" placeholder="e.g., 64" min="0" onchange="updateHydration()" style="width: 100%;">
+                                </div>
+                            </div>
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <input type="checkbox" id="waterCheckbox" onchange="updateHydration()" style="width: auto; padding: 0;">
                                 <label for="waterCheckbox" style="margin: 0;">
@@ -747,7 +836,7 @@
                         </label>
                         <div class="slider-container">
                             <span>0 hrs</span>
-                            <input type="range" min="0" max="15" step="0.5" value="7" id="sleepSlider" oninput="updateSleep(this.value)">
+                            <input type="range" min="0" max="15" step="0.5" value="7" id="sleepSlider" class="sleep-slider" oninput="updateSleep(this.value)">
                             <span>15+ hrs</span>
                             <span class="slider-value" id="sleepValue">7 hrs</span>
                         </div>
@@ -762,6 +851,7 @@
                             </span>
                         </label>
                         <select id="caffeineSelect" onchange="updateCaffeine()">
+                            <option value="" selected>Select...</option>
                             <option value="0">None - Caffeine? Never heard of her (0 mg)</option>
                             <option value="25">Barely Awake (25-50 mg)</option>
                             <option value="75">Sipping Gently (75-100 mg)</option>
@@ -778,6 +868,20 @@
                             <option value="950">Communicating with Coffee Gods (950-1000 mg)</option>
                             <option value="1000">1000+ mg (Please Seek Help)</option>
                         </select>
+                        <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="regularCaffeineCheckbox" onchange="toggleRegularCaffeine()" style="width: auto; padding: 0;">
+                            <label for="regularCaffeineCheckbox" style="margin: 0;">
+                                I regularly consume caffeine
+                            </label>
+                        </div>
+                        <div id="caffeineComparisonSection" style="margin-top: 15px; display: none;">
+                            <label style="margin-bottom: 5px; display: block;">Today's intake is:</label>
+                            <select id="caffeineComparisonSelect" onchange="updateCaffeineComparison()">
+                                <option value="below">Below my usual intake</option>
+                                <option value="equal" selected>Equal to my usual intake</option>
+                                <option value="above">Above my usual intake</option>
+                            </select>
+                        </div>
                         <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                             <div>
                                 <label style="font-size: 14px; margin-bottom: 5px;">
@@ -818,19 +922,98 @@
                         </div>
                     </div>
 
-                    <!-- Screen Time -->
+                    <!-- Alcohol Consumption -->
                     <div class="advanced-item">
                         <label>
-                            Screen time today (hours)
+                            Alcohol consumption (last 24 hours)
                             <span class="info-icon">?
-                                <span class="tooltip">Prolonged screen exposure can cause eye strain and trigger migraines in some individuals, particularly with bright screens or blue light exposure.</span>
+                                <span class="tooltip">Alcohol is a well-known migraine trigger. It causes vasodilation, dehydration, and can disrupt sleep. Red wine and beer are common triggers due to histamines and tyramine.</span>
+                            </span>
+                        </label>
+                        <select id="alcoholSelect" onchange="updateAlcohol()">
+                            <option value="0" selected>None</option>
+                            <option value="1">1-2 drinks</option>
+                            <option value="3">3-4 drinks</option>
+                            <option value="5">5+ drinks</option>
+                        </select>
+                    </div>
+
+                    <!-- Exercise -->
+                    <div class="advanced-item">
+                        <label>
+                            Exercise intensity (last 24 hours)
+                            <span class="info-icon">?
+                                <span class="tooltip">Moderate exercise can help prevent migraines by reducing stress and improving circulation. However, intense exercise can trigger migraines in some people through dehydration or blood pressure changes.</span>
+                            </span>
+                        </label>
+                        <select id="exerciseSelect" onchange="updateExercise()">
+                            <option value="0" selected>None</option>
+                            <option value="1">Light (walking, stretching)</option>
+                            <option value="2">Moderate (jogging, cycling)</option>
+                            <option value="3">Intense (HIIT, running, heavy lifting)</option>
+                        </select>
+                    </div>
+
+                    <!-- Light Exposure -->
+                    <div class="advanced-item">
+                        <label>Light exposure today</label>
+                        <div style="margin-top: 10px;">
+                            <label style="font-size: 14px; margin-bottom: 5px; display: block;">
+                                Direct sunlight (hours)
+                                <span class="info-icon">?
+                                    <span class="tooltip">Bright sunlight can trigger migraines in photosensitive individuals. UV exposure and glare are common triggers.</span>
+                                </span>
+                            </label>
+                            <div class="slider-container" style="margin-bottom: 15px;">
+                                <span>0</span>
+                                <input type="range" min="0" max="24" step="0.5" value="0" id="sunlightSlider" oninput="updateSunlight(this.value)">
+                                <span>24</span>
+                                <span class="slider-value" id="sunlightValue">0 hrs</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <label style="font-size: 14px; margin-bottom: 5px; display: block;">
+                                Fluorescent light (hours)
+                                <span class="info-icon">?
+                                    <span class="tooltip">Fluorescent lighting flickers at a frequency that can trigger migraines in sensitive individuals. Office environments often have prolonged fluorescent exposure.</span>
+                                </span>
+                            </label>
+                            <div class="slider-container" style="margin-bottom: 15px;">
+                                <span>0</span>
+                                <input type="range" min="0" max="24" step="0.5" value="0" id="fluorescentSlider" oninput="updateFluorescent(this.value)">
+                                <span>24</span>
+                                <span class="slider-value" id="fluorescentValue">0 hrs</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <label style="font-size: 14px; margin-bottom: 5px; display: block;">
+                                Screen light (hours)
+                                <span class="info-icon">?
+                                    <span class="tooltip">Prolonged screen exposure can cause eye strain and trigger migraines, particularly with bright screens or blue light exposure. Screens emit blue light which can be particularly triggering.</span>
+                                </span>
+                            </label>
+                            <div class="slider-container">
+                                <span>0</span>
+                                <input type="range" min="0" max="24" step="0.5" value="0" id="screenSlider" oninput="updateScreen(this.value)">
+                                <span>24</span>
+                                <span class="slider-value" id="screenValue">0 hrs</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Strong Scents -->
+                    <div class="advanced-item">
+                        <label>
+                            Exposure to strong scents (hours)
+                            <span class="info-icon">?
+                                <span class="tooltip">Strong smells (perfumes, cleaning products, smoke, paint fumes) can trigger migraines in sensitive individuals through trigeminal nerve stimulation.</span>
                             </span>
                         </label>
                         <div class="slider-container">
                             <span>0</span>
-                            <input type="range" min="0" max="8" step="0.5" value="4" id="screenSlider" oninput="updateScreen(this.value)">
-                            <span>8+</span>
-                            <span class="slider-value" id="screenValue">4</span>
+                            <input type="range" min="0" max="24" step="0.5" value="0" id="scentsSlider" oninput="updateScents(this.value)">
+                            <span>24</span>
+                            <span class="slider-value" id="scentsValue">0 hrs</span>
                         </div>
                     </div>
 
@@ -887,6 +1070,11 @@
                 <h2>Environmental & Personal Factors</h2>
                 <div id="factorsContainer"></div>
             </div>
+
+            <!-- Feedback Link -->
+            <div style="text-align: center; margin-top: 30px; padding: 20px;">
+                <a href="https://forms.gle/JELAGnoehGU9BFwZA" target="_blank" style="color: #fff; text-decoration: underline; font-size: 14px;">Feedback?</a>
+            </div>
         </div>
     </div>
 
@@ -922,9 +1110,14 @@
             // Personal factors
             stress: null,  // null means not filled out, default shown as 0
             sleep: null,  // null means not filled out, default shown as 7
-            caffeine: null,  // null means not filled out, default shown as 0
+            caffeine: null,  // null means not filled out, default shown as Select
             caffeineDetail: { cups: 0, energyDrinks: 0, teaCups: 0, meds: 0 },
-            screenTime: null,  // null means not filled out, default shown as 4
+            regularCaffeineConsumer: false,
+            caffeineComparison: 'equal', // below, equal, above
+            alcohol: 0,  // 0=none, 1=1-2 drinks, 3=3-4 drinks, 5=5+ drinks
+            exercise: 0,  // 0=none, 1=light, 2=moderate, 3=intense
+            lightExposure: { sunlight: 0, fluorescent: 0, screen: 0 },
+            scents: 0,
             // Menstrual cycle
             menstrualDays: null,  // null means not filled out
             menstrualNotApplicable: false,
@@ -937,7 +1130,10 @@
                 stress: false,
                 sleep: false,
                 caffeine: false,
-                screenTime: false,
+                alcohol: false,
+                exercise: false,
+                lightExposure: false,
+                scents: false,
                 menstrual: false
             }
         };
@@ -1225,7 +1421,24 @@
             userState.fluidOz = document.getElementById('fluidOzInput').value;
             userState.includedWater = document.getElementById('waterCheckbox').checked;
             userState.filledFields.hydration = true;
-            saveUserPreferences();
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function updateHydrationDetails() {
+            const glasses = parseInt(document.getElementById('waterGlassesInput').value) || 0;
+            const estimatedOz = glasses * 8;
+
+            // Update the fluid oz input
+            document.getElementById('fluidOzInput').value = estimatedOz;
+            userState.fluidOz = estimatedOz.toString();
+
+            // Auto-check water checkbox if glasses > 0
+            if (glasses > 0) {
+                document.getElementById('waterCheckbox').checked = true;
+                userState.includedWater = true;
+            }
+
+            userState.filledFields.hydration = true;
             if (weatherData) calculateAndDisplayMigraineIndex();
         }
 
@@ -1245,9 +1458,31 @@
         }
 
         function updateCaffeine() {
-            userState.caffeine = parseInt(document.getElementById('caffeineSelect').value);
-            userState.filledFields.caffeine = true;
-            saveUserPreferences();
+            const value = document.getElementById('caffeineSelect').value;
+            if (value === '') {
+                userState.caffeine = null;
+                userState.filledFields.caffeine = false;
+            } else {
+                userState.caffeine = parseInt(value);
+                userState.filledFields.caffeine = true;
+            }
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function toggleRegularCaffeine() {
+            const checked = document.getElementById('regularCaffeineCheckbox').checked;
+            userState.regularCaffeineConsumer = checked;
+            const comparisonSection = document.getElementById('caffeineComparisonSection');
+            if (checked) {
+                comparisonSection.style.display = 'block';
+            } else {
+                comparisonSection.style.display = 'none';
+            }
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function updateCaffeineComparison() {
+            userState.caffeineComparison = document.getElementById('caffeineComparisonSelect').value;
             if (weatherData) calculateAndDisplayMigraineIndex();
         }
 
@@ -1284,11 +1519,43 @@
             if (weatherData) calculateAndDisplayMigraineIndex();
         }
 
+        function updateAlcohol() {
+            userState.alcohol = parseInt(document.getElementById('alcoholSelect').value);
+            userState.filledFields.alcohol = true;
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function updateExercise() {
+            userState.exercise = parseInt(document.getElementById('exerciseSelect').value);
+            userState.filledFields.exercise = true;
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function updateSunlight(value) {
+            userState.lightExposure.sunlight = parseFloat(value);
+            userState.filledFields.lightExposure = true;
+            document.getElementById('sunlightValue').textContent = value + ' hrs';
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function updateFluorescent(value) {
+            userState.lightExposure.fluorescent = parseFloat(value);
+            userState.filledFields.lightExposure = true;
+            document.getElementById('fluorescentValue').textContent = value + ' hrs';
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
         function updateScreen(value) {
-            userState.screenTime = parseFloat(value);
-            userState.filledFields.screenTime = true;
-            document.getElementById('screenValue').textContent = value;
-            saveUserPreferences();
+            userState.lightExposure.screen = parseFloat(value);
+            userState.filledFields.lightExposure = true;
+            document.getElementById('screenValue').textContent = value + ' hrs';
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function updateScents(value) {
+            userState.scents = parseFloat(value);
+            userState.filledFields.scents = true;
+            document.getElementById('scentsValue').textContent = value + ' hrs';
             if (weatherData) calculateAndDisplayMigraineIndex();
         }
 
@@ -1346,25 +1613,31 @@
                 food: calculateFoodRisk(userState.ateToday, userState.calories, userState.sufficientProtein),
                 hydration: calculateHydrationRisk(userState.drankToday, userState.fluidOz, userState.includedWater),
                 caffeine: calculateCaffeineRisk(userState.caffeine),
-                screen: calculateScreenRisk(userState.screenTime),
+                alcohol: calculateAlcoholRisk(userState.alcohol),
+                exercise: calculateExerciseRisk(userState.exercise),
+                lightExposure: calculateLightExposureRisk(userState.lightExposure),
+                scents: calculateScentsRisk(userState.scents),
                 menstrual: calculateMenstrualRisk(userState.menstrualDays, userState.menstrualNotApplicable)
             };
 
             // Research-based weights (totaling to 1.0)
             const weights = {
-                pressure: 0.20,      // High - most studied environmental factor
-                humidity: 0.11,      // Medium-high - 28% increase in odds
-                temperature: 0.11,   // Medium-high - 19-24% increase
-                aqi: 0.07,           // Medium - 3-5% per IQR
-                precipitation: 0.05, // Low-medium - related to pressure changes
-                wind: 0.03,          // Low - proxy for weather fronts
-                time: 0.05,          // Low-medium - circadian patterns
-                sleep: 0.14,         // High - major personal trigger
-                stress: 0.09,        // Medium-high - cortisol pathway
+                pressure: 0.18,      // High - most studied environmental factor
+                humidity: 0.09,      // Medium-high - 28% increase in odds
+                temperature: 0.09,   // Medium-high - 19-24% increase
+                aqi: 0.06,           // Medium - 3-5% per IQR
+                precipitation: 0.04, // Low-medium - related to pressure changes
+                wind: 0.02,          // Low - proxy for weather fronts
+                time: 0.04,          // Low-medium - circadian patterns
+                sleep: 0.13,         // High - major personal trigger
+                stress: 0.08,        // Medium-high - cortisol pathway
                 food: 0.05,          // Medium - blood sugar trigger
                 hydration: 0.05,     // Medium - dehydration trigger
-                caffeine: 0.03,      // Low-medium - complex relationship
-                screen: 0.02,        // Low - eye strain
+                caffeine: 0.04,      // Medium - withdrawal/overuse
+                alcohol: 0.04,       // Medium - vasodilation/dehydration
+                exercise: 0.03,      // Low-medium - helps or triggers
+                lightExposure: 0.03, // Low-medium - photosensitivity
+                scents: 0.02,        // Low - trigeminal trigger
                 menstrual: 0.05      // Medium - hormonal fluctuations
             };
 
@@ -1388,6 +1661,22 @@
             document.getElementById('indexValue').textContent = migraineIndex;
             const marker = document.getElementById('indexMarker');
             marker.style.left = `${migraineIndex}%`;
+
+            // Update risk level text
+            const riskText = document.getElementById('riskLevelText');
+            if (migraineIndex <= 25) {
+                riskText.textContent = '✓ Low Risk - Good conditions today';
+                riskText.style.color = '#22c55e';
+            } else if (migraineIndex <= 50) {
+                riskText.textContent = '⚠ Moderate Risk - Be prepared and stay hydrated';
+                riskText.style.color = '#eab308';
+            } else if (migraineIndex <= 75) {
+                riskText.textContent = '⚠️ High Risk - Consider preventive measures';
+                riskText.style.color = '#f97316';
+            } else {
+                riskText.textContent = '🚨 Very High Risk - Take your medication if needed';
+                riskText.style.color = '#ef4444';
+            }
 
             // Display individual factors
             displayFactors(factors, weatherData);
@@ -1550,26 +1839,91 @@
         }
 
         function calculateCaffeineRisk(caffeine) {
-            // Complex: no caffeine (possible withdrawal) or very high (overuse) both risky
-            if (caffeine === null) caffeine = 0; // Default if not filled
-            if (caffeine === 0) return 30; // Possible withdrawal for regular users
-            if (caffeine <= 100) return 15; // Low, potentially helpful
-            if (caffeine <= 200) return 20; // Moderate, optimal range
-            if (caffeine <= 300) return 25; // Moderate-high
-            if (caffeine <= 400) return 35; // Getting high
-            if (caffeine <= 600) return 50; // High caffeine = overuse risk
-            if (caffeine <= 800) return 65; // Very high
-            if (caffeine <= 1000) return 80; // Extreme
-            return 90; // Critical levels
+            // New logic based on regular consumer status and comparison
+            if (caffeine === null) {
+                // No data filled
+                return 20;
+            }
+
+            const isRegular = userState.regularCaffeineConsumer;
+            const comparison = userState.caffeineComparison;
+
+            // Regular consumer logic
+            if (isRegular) {
+                if (comparison === 'below') {
+                    // Regular consumer + below usual = HIGH risk (withdrawal)
+                    return 75;
+                } else if (comparison === 'equal') {
+                    // Regular consumer + equal to usual = LOW risk (maintained)
+                    return 15;
+                } else { // above
+                    // Regular consumer + above usual = LOW risk (tolerated overuse)
+                    return 20;
+                }
+            } else {
+                // Non-regular consumer
+                if (caffeine === 0) {
+                    return 10; // No caffeine, no risk
+                } else if (caffeine <= 200) {
+                    // Non-regular + low-moderate caffeine = LOW risk
+                    return 20;
+                } else if (caffeine <= 400) {
+                    // Non-regular + moderate-high caffeine = MEDIUM risk
+                    return 40;
+                } else {
+                    // Non-regular + high caffeine = MEDIUM risk (overstimulation)
+                    return 50;
+                }
+            }
         }
 
-        function calculateScreenRisk(screenTime) {
-            // More screen time = more eye strain
-            if (screenTime === null) screenTime = 4; // Default if not filled
-            if (screenTime <= 2) return 10;
-            if (screenTime <= 4) return 20;
-            if (screenTime <= 6) return 35;
-            return 50;
+        function calculateAlcoholRisk(alcohol) {
+            // Alcohol causes vasodilation, dehydration, disrupts sleep
+            // 0=none, 1=1-2 drinks, 3=3-4 drinks, 5=5+ drinks
+            if (alcohol === 0) return 10;
+            if (alcohol === 1) return 35; // 1-2 drinks
+            if (alcohol === 3) return 60; // 3-4 drinks
+            return 80; // 5+ drinks
+        }
+
+        function calculateExerciseRisk(exercise) {
+            // Moderate exercise helps, intense can trigger, none is neutral
+            // 0=none, 1=light, 2=moderate, 3=intense
+            if (exercise === 0) return 25; // No exercise = neutral-slightly elevated
+            if (exercise === 1) return 15; // Light = beneficial
+            if (exercise === 2) return 10; // Moderate = most beneficial
+            return 40; // Intense = can trigger through dehydration/BP changes
+        }
+
+        function calculateLightExposureRisk(lightExposure) {
+            // Combine all light sources with different weights
+            const sunlight = lightExposure.sunlight || 0;
+            const fluorescent = lightExposure.fluorescent || 0;
+            const screen = lightExposure.screen || 0;
+
+            // Sunlight is most triggering (bright, UV, glare)
+            let sunRisk = Math.min(60, sunlight * 8);
+
+            // Fluorescent is medium triggering (flicker)
+            let fluorRisk = Math.min(40, fluorescent * 3);
+
+            // Screen is least triggering but cumulative
+            let screenRisk = Math.min(30, screen * 2.5);
+
+            // Combined risk (not simply additive, use max + portion of others)
+            const maxRisk = Math.max(sunRisk, fluorRisk, screenRisk);
+            const otherRisks = sunRisk + fluorRisk + screenRisk - maxRisk;
+
+            return Math.min(100, maxRisk + (otherRisks * 0.3) + 15);
+        }
+
+        function calculateScentsRisk(scents) {
+            // Strong scents trigger through trigeminal nerve
+            if (scents === 0) return 10;
+            if (scents <= 1) return 25;
+            if (scents <= 3) return 45;
+            if (scents <= 6) return 65;
+            return Math.min(100, 75 + (scents - 6) * 3);
         }
 
         function calculateMenstrualRisk(daysAway, notApplicable) {
@@ -1582,6 +1936,70 @@
             if (daysAway >= 4 && daysAway <= 7) return 40; // Just after
             if (daysAway >= 23 && daysAway <= 25) return 45; // Week before
             return 20; // Mid-cycle
+        }
+
+        function getFactorTooltip(factorName, factorValue, weatherData) {
+            const current = weatherData.current;
+            const history = weatherData.history;
+
+            switch(factorName) {
+                case 'Barometric Pressure':
+                    let pressureText = `Current: ${current.pressure_mb} mb`;
+                    if (history && history.hour && history.hour.length > 0) {
+                        const avgHistorical = history.hour.reduce((sum, h) => sum + h.pressure_mb, 0) / history.hour.length;
+                        const change = current.pressure_mb - avgHistorical;
+                        const changeText = change > 0 ? `↑ ${change.toFixed(1)}mb` : `↓ ${Math.abs(change).toFixed(1)}mb`;
+                        pressureText += `\n24hr Change: ${changeText}`;
+                        if (Math.abs(change) > 5) {
+                            pressureText += `\n\nRapid pressure changes are a strong migraine trigger`;
+                        }
+                    }
+                    return pressureText;
+
+                case 'Temperature':
+                    let tempText = `Current: ${current.temp_c}°C / ${current.temp_f}°F`;
+                    if (history && history.hour && history.hour.length > 0) {
+                        const avgHistorical = history.hour.reduce((sum, h) => sum + h.temp_c, 0) / history.hour.length;
+                        const change = current.temp_c - avgHistorical;
+                        const changeText = change > 0 ? `↑ ${change.toFixed(1)}°C` : `↓ ${Math.abs(change).toFixed(1)}°C`;
+                        tempText += `\n24hr Change: ${changeText}`;
+                        if (Math.abs(change) > 5) {
+                            tempText += `\n\nRapid temperature changes can trigger migraines`;
+                        } else if (current.temp_c >= 18 && current.temp_c <= 24) {
+                            tempText += `\n\nTemperature in comfortable range`;
+                        } else if (current.temp_c > 30) {
+                            tempText += `\n\nHigh heat can trigger migraines through dehydration`;
+                        } else if (current.temp_c < 10) {
+                            tempText += `\n\nCold temperatures can cause vascular constriction`;
+                        }
+                    }
+                    return tempText;
+
+                default:
+                    return factorValue;
+            }
+        }
+
+        function getPressureTrendHTML(weatherData) {
+            if (!weatherData.history || !weatherData.history.hour || weatherData.history.hour.length === 0) {
+                return '';
+            }
+
+            const current = weatherData.current.pressure_mb;
+            const avgHistorical = weatherData.history.hour.reduce((sum, h) => sum + h.pressure_mb, 0) / weatherData.history.hour.length;
+            const change = current - avgHistorical;
+
+            if (Math.abs(change) < 3) {
+                return '<div class="pressure-trend stable">✓ Pressure stable</div>';
+            } else if (change < -5) {
+                return `<div class="pressure-trend alert">⚠️ Pressure dropping rapidly (${Math.abs(change).toFixed(1)}mb in 24h)</div>`;
+            } else if (change < 0) {
+                return `<div class="pressure-trend warning">⚠ Pressure dropping (${Math.abs(change).toFixed(1)}mb in 24h)</div>`;
+            } else if (change > 5) {
+                return `<div class="pressure-trend warning">⚠ Pressure rising rapidly (+${change.toFixed(1)}mb in 24h)</div>`;
+            } else {
+                return `<div class="pressure-trend stable">✓ Pressure rising slowly (+${change.toFixed(1)}mb in 24h)</div>`;
+            }
         }
 
         function displayFactors(factors, weatherData) {
@@ -1756,10 +2174,15 @@
 
             container.innerHTML = factorDisplays.map(factor => {
                 const isSleep = factor.name === 'Sleep Quality';
+                const tooltipText = getFactorTooltip(factor.name, factor.value, weatherData);
+                const pressureTrend = factor.name === 'Barometric Pressure' ? getPressureTrendHTML(weatherData) : '';
+
                 const scaleHTML = isSleep
                     ? generateSleepBlockScale(userState.sleep, !factor.filled)
                     : `<div class="factor-scale">
-                        <div class="factor-marker" style="left: ${factor.risk}%"></div>
+                        <div class="factor-marker" style="left: ${factor.risk}%">
+                            <div class="factor-marker-tooltip">${tooltipText}</div>
+                        </div>
                        </div>`;
 
                 return `
@@ -1771,8 +2194,13 @@
                                 <span class="tooltip">${factor.tooltip}</span>
                             </span>
                         </span>
-                        <span class="factor-value">${factor.value}</span>
+                        <div class="factor-value-container">
+                            <div class="factor-value-label">Currently:</div>
+                            <div class="factor-value">${factor.value}</div>
+                            <div class="factor-value-underline"></div>
+                        </div>
                     </div>
+                    ${pressureTrend}
                     ${scaleHTML}
                     ${!factor.filled ? '<div class="factor-prompt">Click to fill out in Advanced Mode</div>' : ''}
                 </div>
