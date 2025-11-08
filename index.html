@@ -35,39 +35,6 @@
             color: #d5d5d5;
         }
 
-        /* Cookie Consent Banner */
-        #cookieConsent {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #333;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            display: none;
-            z-index: 1000;
-        }
-
-        #cookieConsent button {
-            margin: 0 10px;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        #cookieConsent .accept {
-            background: #4CAF50;
-            color: white;
-        }
-
-        #cookieConsent .decline {
-            background: #f44336;
-            color: white;
-        }
-
         /* Frequency Scale */
         .frequency-scale {
             margin-bottom: 30px;
@@ -107,11 +74,11 @@
             box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
         }
 
-        .frequency-option.freq-1 { background: linear-gradient(135deg, #22c55e, #86efac); }
-        .frequency-option.freq-2 { background: linear-gradient(135deg, #84cc16, #bef264); }
-        .frequency-option.freq-3 { background: linear-gradient(135deg, #eab308, #fde047); }
-        .frequency-option.freq-4 { background: linear-gradient(135deg, #f97316, #fdba74); }
-        .frequency-option.freq-5 { background: linear-gradient(135deg, #ef4444, #fca5a5); }
+        .frequency-option.freq-1 { background: linear-gradient(135deg, #22c55e, #86efac); color: #166534; }
+        .frequency-option.freq-2 { background: linear-gradient(135deg, #84cc16, #bef264); color: #3f6212; }
+        .frequency-option.freq-3 { background: linear-gradient(135deg, #eab308, #fde047); color: #854d0e; }
+        .frequency-option.freq-4 { background: linear-gradient(135deg, #f97316, #fdba74); color: #9a3412; }
+        .frequency-option.freq-5 { background: linear-gradient(135deg, #ef4444, #fca5a5); color: #991b1b; }
         .frequency-option.freq-6 { background: linear-gradient(135deg, #1f1f1f, #404040); color: white; }
 
         /* Migraine Index Display */
@@ -388,7 +355,7 @@
         .factors-section h2 {
             font-size: 18px;
             margin-bottom: 20px;
-            color: #555;
+            color: #c5c5c5;
         }
 
         .factor-item {
@@ -434,13 +401,14 @@
         }
 
         .factor-value-container {
-            text-align: right;
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
         }
 
         .factor-value-label {
             font-size: 11px;
             color: #999;
-            margin-bottom: 2px;
         }
 
         .factor-value {
@@ -459,10 +427,18 @@
             height: 15px;
             background: linear-gradient(to right, #86efac, #fde047, #fca5a5);
             border-radius: 8px;
+            cursor: pointer;
         }
 
         .factor-item.greyed-out .factor-scale {
             background: #d0d0d0;
+        }
+
+        /* Greyscale certain factors */
+        .factor-item.factor-alcohol .factor-scale,
+        .factor-item.factor-exercise .factor-scale,
+        .factor-item.factor-marijuana .factor-scale {
+            background: linear-gradient(to right, #d5d5d5, #888, #444);
         }
 
         .factor-marker {
@@ -498,7 +474,9 @@
             white-space: pre-line;
         }
 
-        .factor-marker:hover .factor-marker-tooltip {
+        .factor-marker:hover .factor-marker-tooltip,
+        .factor-scale:hover .factor-marker-tooltip,
+        .factor-header:hover .factor-marker-tooltip {
             display: block;
         }
 
@@ -671,13 +649,6 @@
     </style>
 </head>
 <body>
-    <!-- Cookie Consent Banner -->
-    <div id="cookieConsent">
-        <p>This app uses cookies to save your preferences for future visits. Do you consent?</p>
-        <button class="accept" onclick="acceptCookies()">Accept</button>
-        <button class="decline" onclick="declineCookies()">Decline</button>
-    </div>
-
     <div class="container">
         <h1>Migraine Predictor</h1>
 
@@ -942,19 +913,19 @@
                             <span>12</span>
                             <span class="slider-value" id="alcoholValue">0 drinks</span>
                         </div>
-                        <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
-                            <input type="checkbox" id="regularAlcoholCheckbox" onchange="toggleRegularAlcohol()" style="width: auto; padding: 0;">
-                            <label for="regularAlcoholCheckbox" style="margin: 0;">I regularly consume alcohol</label>
-                        </div>
                         <div style="margin-top: 10px; display: flex; gap: 20px;">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <input type="checkbox" id="redWineCheckbox" onchange="toggleRedWine()" style="width: auto; padding: 0;">
-                                <label for="redWineCheckbox" style="margin: 0; font-size: 14px;">Contains red wine</label>
+                                <label for="redWineCheckbox" style="margin: 0; font-size: 14px;">Consumed red wine</label>
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <input type="checkbox" id="beerCheckbox" onchange="toggleBeer()" style="width: auto; padding: 0;">
-                                <label for="beerCheckbox" style="margin: 0; font-size: 14px;">Contains beer</label>
+                                <label for="beerCheckbox" style="margin: 0; font-size: 14px;">Consumed beer</label>
                             </div>
+                        </div>
+                        <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="regularAlcoholCheckbox" onchange="toggleRegularAlcohol()" style="width: auto; padding: 0;">
+                            <label for="regularAlcoholCheckbox" style="margin: 0;">I regularly consume alcohol</label>
                         </div>
                         <div id="alcoholComparisonSection" style="display: none; margin-top: 10px;">
                             <label style="font-size: 14px; margin-bottom: 5px; display: block;">Today's Intake Is</label>
@@ -999,7 +970,7 @@
                     <!-- Light Exposure -->
                     <div class="advanced-item">
                         <label>Light exposure today</label>
-                        <div style="margin-top: 10px;">
+                        <div style="margin-top: 10px; padding-left: 20px;">
                             <label style="font-size: 14px; margin-bottom: 5px; display: block;">
                                 Direct sunlight (hours)
                                 <span class="info-icon">?
@@ -1013,7 +984,7 @@
                                 <span class="slider-value" id="sunlightValue">0 hrs</span>
                             </div>
                         </div>
-                        <div style="margin-top: 10px;">
+                        <div style="margin-top: 10px; padding-left: 20px;">
                             <label style="font-size: 14px; margin-bottom: 5px; display: block;">
                                 Fluorescent light (hours)
                                 <span class="info-icon">?
@@ -1027,7 +998,7 @@
                                 <span class="slider-value" id="fluorescentValue">0 hrs</span>
                             </div>
                         </div>
-                        <div style="margin-top: 10px;">
+                        <div style="margin-top: 10px; padding-left: 20px;">
                             <label style="font-size: 14px; margin-bottom: 5px; display: block;">
                                 Screen light (hours)
                                 <span class="info-icon">?
@@ -1128,6 +1099,8 @@
                             <option value="26">26 days</option>
                             <option value="27">27 days</option>
                             <option value="28">28 days</option>
+                            <option value="unsure">Unsure</option>
+                            <option value="pregnant">Pregnant</option>
                         </select>
                     </div>
                 </div>
@@ -1138,7 +1111,7 @@
 
             <!-- Individual Factors -->
             <div class="factors-section">
-                <h2>Environmental & Personal Factors</h2>
+                <h2>Environmental & Personal Factors <span id="locationDisplay" style="font-size: 14px; font-weight: normal; color: #999; margin-left: 15px;"></span></h2>
                 <div id="factorsContainer"></div>
             </div>
 
@@ -1202,7 +1175,6 @@
             menstrualDays: null,  // null means not filled out
             menstrualNotApplicable: false,
             menstrualLastUpdated: null,  // Track when menstrual data was last set
-            cookiesAccepted: false,
             // Tracking which fields have been modified
             filledFields: {
                 food: false,
@@ -1219,44 +1191,21 @@
             }
         };
 
-        // Check for cookies consent on load
+        // Load preferences on app start
         window.addEventListener('DOMContentLoaded', function() {
-            const cookiesAccepted = localStorage.getItem('cookiesAccepted');
-            if (cookiesAccepted === null) {
-                document.getElementById('cookieConsent').style.display = 'block';
-            } else if (cookiesAccepted === 'true') {
-                userState.cookiesAccepted = true;
-                loadUserPreferences();
-            }
-
-            // Automatically initialize the app
+            loadUserPreferences();
             initializeApp();
         });
 
-        function acceptCookies() {
-            localStorage.setItem('cookiesAccepted', 'true');
-            userState.cookiesAccepted = true;
-            document.getElementById('cookieConsent').style.display = 'none';
-            saveUserPreferences();
-        }
-
-        function declineCookies() {
-            localStorage.setItem('cookiesAccepted', 'false');
-            userState.cookiesAccepted = false;
-            document.getElementById('cookieConsent').style.display = 'none';
-        }
-
         function saveUserPreferences() {
-            if (userState.cookiesAccepted) {
-                // Only save frequency and menstrual cycle data
-                const toSave = {
-                    frequency: userState.frequency,
-                    menstrualDays: userState.menstrualDays,
-                    menstrualNotApplicable: userState.menstrualNotApplicable,
-                    menstrualLastUpdated: userState.menstrualLastUpdated
-                };
-                localStorage.setItem('userPreferences', JSON.stringify(toSave));
-            }
+            // Only save frequency and menstrual cycle data
+            const toSave = {
+                frequency: userState.frequency,
+                menstrualDays: userState.menstrualDays,
+                menstrualNotApplicable: userState.menstrualNotApplicable,
+                menstrualLastUpdated: userState.menstrualLastUpdated
+            };
+            localStorage.setItem('userPreferences', JSON.stringify(toSave));
         }
 
         function loadUserPreferences() {
@@ -1367,6 +1316,12 @@
                 }
 
                 weatherData = await forecastResponse.json();
+
+                // Update location display
+                if (weatherData.location) {
+                    const locationText = `Your Location: ${weatherData.location.name}, ${weatherData.location.region}`;
+                    document.getElementById('locationDisplay').textContent = locationText;
+                }
 
                 // Extract forecast hours for 6hr and 12hr windows
                 if (weatherData.forecast && weatherData.forecast.forecastday[0]) {
@@ -1746,10 +1701,14 @@
             const value = document.getElementById('menstrualSelect').value;
             userState.filledFields.menstrual = true;
 
-            if (value === 'not_applicable') {
+            if (value === 'not_applicable' || value === 'pregnant') {
                 userState.menstrualNotApplicable = true;
                 userState.menstrualDays = null;
                 userState.menstrualLastUpdated = null;
+            } else if (value === 'unsure') {
+                userState.menstrualNotApplicable = false;
+                userState.menstrualDays = 15; // Assume mid-cycle
+                userState.menstrualLastUpdated = new Date().toISOString();
             } else if (value === '') {
                 userState.menstrualNotApplicable = false;
                 userState.menstrualDays = null;
@@ -1827,8 +1786,8 @@
             };
 
             // Apply sensitivity multiplier based on frequency (1=low sensitivity, 6=extreme sensitivity)
-            // Stronger impact: 10+ migraines/month (freq=6) gives ~90% higher baseline
-            const sensitivityMultiplier = 0.70 + (userState.frequency * 0.20); // Range: 0.90 to 1.90
+            // Stronger impact: 10+ migraines/month (freq=6) gives 90% higher baseline
+            const sensitivityMultiplier = 0.80 + (userState.frequency * 0.20); // Range: 1.0 to 2.0
 
             // Calculate weighted migraine index
             let migraineIndex = 0;
@@ -2613,8 +2572,11 @@
                         </div>
                        </div>`;
 
+                // Add factor-specific class for styling
+                const factorClass = factor.name.toLowerCase().replace(/\s+/g, '-');
+
                 return `
-                <div class="factor-item ${!factor.filled ? 'greyed-out' : ''}" ${!factor.filled ? 'onclick="openAdvancedMode()"' : ''}>
+                <div class="factor-item factor-${factorClass} ${!factor.filled ? 'greyed-out' : ''}" ${!factor.filled ? 'onclick="openAdvancedMode()"' : ''}>
                     <div class="factor-header">
                         <span class="factor-name">
                             ${factor.name}
@@ -2622,9 +2584,11 @@
                                 <span class="tooltip">${factor.tooltip}</span>
                             </span>
                         </span>
-                        <div class="factor-value-container">
-                            <div class="factor-value-label">Currently:</div>
-                            <div class="factor-value">${factor.value}</div>
+                        <div>
+                            <div class="factor-value-container">
+                                <div class="factor-value-label">Currently:</div>
+                                <div class="factor-value">${factor.value}</div>
+                            </div>
                             <div class="factor-value-underline"></div>
                         </div>
                     </div>

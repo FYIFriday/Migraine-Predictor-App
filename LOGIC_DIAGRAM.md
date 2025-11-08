@@ -93,7 +93,7 @@ Migraine Index = [Σ (Factor_Risk × Factor_Weight)] × Sensitivity_Multiplier
 Where:
 - **Factor_Risk**: Individual risk score for each factor (0-100)
 - **Factor_Weight**: Research-based weight for each factor (totaling 1.0)
-- **Sensitivity_Multiplier**: `0.70 + (frequency × 0.20)` = Range from **0.90 to 1.90**
+- **Sensitivity_Multiplier**: `0.80 + (frequency × 0.20)` = Range from **1.0 to 2.0**
 
 ## Factor Weights (Total = 1.0)
 
@@ -127,12 +127,12 @@ Based on migraine frequency (1-6 scale):
 
 | Frequency | Description | Multiplier | Effect |
 |-----------|-------------|------------|--------|
-| 1 | Rare (< 1/month) | 0.90× | -10% baseline |
-| 2 | Occasional (1-3/month) | 1.10× | +10% baseline |
-| 3 | Frequent (4-7/month) | 1.30× | +30% baseline |
-| 4 | Very Frequent (8-10/month) | 1.50× | +50% baseline |
-| 5 | Chronic (11-14/month) | 1.70× | +70% baseline |
-| 6 | Extreme (15+/month) | 1.90× | +90% baseline |
+| 1 | Rare (< 1/month) | 1.0× | Baseline (no adjustment) |
+| 2 | Occasional (1-3/month) | 1.2× | +20% baseline |
+| 3 | Frequent (4-7/month) | 1.4× | +40% baseline |
+| 4 | Very Frequent (8-10/month) | 1.6× | +60% baseline |
+| 5 | Chronic (11-14/month) | 1.8× | +80% baseline |
+| 6 | Extreme (15+/month) | 2.0× | +100% baseline (2x) |
 
 ## Predictive vs Diagnostic
 
