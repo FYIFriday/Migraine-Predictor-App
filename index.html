@@ -2442,6 +2442,106 @@
             }
         }
 
+        // Generate color-coded SVG line graph for 12-hour predictions
+        function generateLineGraph(dataPoints, width = 200, height = 60, lineColor = null) {
+            if (!dataPoints || dataPoints.length < 2) return '';
+
+            const padding = 5;
+            const graphWidth = width - (padding * 2);
+            const graphHeight = height - (padding * 2);
+
+            // Find min/max for scaling
+            const values = dataPoints.map(d => d.value);
+            const minVal = Math.min(...values);
+            const maxVal = Math.max(...values);
+            const range = maxVal - minVal || 1;
+
+            // Generate points for the line
+            const points = dataPoints.map((d, i) => {
+                const x = padding + (i / (dataPoints.length - 1)) * graphWidth;
+                const y = padding + graphHeight - ((d.value - minVal) / range) * graphHeight;
+                return { x, y, value: d.value, label: d.label };
+            });
+
+            // Generate SVG path
+            const pathData = points.map((p, i) =>
+                `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`
+            ).join(' ');
+
+            // Generate colored segments if using risk-based coloring
+            let pathElements = '';
+            if (lineColor === 'risk') {
+                for (let i = 0; i < points.length - 1; i++) {
+                    const avgVal = (points[i].value + points[i + 1].value) / 2;
+                    const normalizedVal = (avgVal - minVal) / range;
+                    // Red for high (> 0.7), Yellow for mid (0.3-0.7), Green for low (< 0.3)
+                    let segmentColor = normalizedVal > 0.7 ? '#ef4444' : normalizedVal > 0.3 ? '#eab308' : '#22c55e';
+                    pathElements += `<path d="M ${points[i].x} ${points[i].y} L ${points[i + 1].x} ${points[i + 1].y}"
+                                          stroke="${segmentColor}" stroke-width="2" fill="none"/>`;
+                }
+            } else {
+                const color = lineColor || '#4CAF50';
+                pathElements = `<path d="${pathData}" stroke="${color}" stroke-width="2" fill="none"/>`;
+            }
+
+            // Add dots at each point
+            const dots = points.map(p =>
+                `<circle cx="${p.x}" cy="${p.y}" r="2" fill="#333"/>`
+            ).join('');
+
+            return `
+                <svg width="${width}" height="${height}" style="display: block;">
+                    ${pathElements}
+                    ${dots}
+                </svg>
+            `;
+        }
+
+        // Generate dual-line graph for humidity and precipitation
+        function generateDualLineGraph(data1, data2, label1, label2, color1, color2, width = 200, height = 60) {
+            if (!data1 || data1.length < 2) return '';
+
+            const padding = 5;
+            const graphWidth = width - (padding * 2);
+            const graphHeight = height - (padding * 2);
+
+            // Combine all values to find global min/max
+            const allValues = [...data1.map(d => d.value), ...data2.map(d => d.value)];
+            const minVal = Math.min(...allValues);
+            const maxVal = Math.max(...allValues);
+            const range = maxVal - minVal || 1;
+
+            // Generate points for both lines
+            const points1 = data1.map((d, i) => {
+                const x = padding + (i / (data1.length - 1)) * graphWidth;
+                const y = padding + graphHeight - ((d.value - minVal) / range) * graphHeight;
+                return { x, y };
+            });
+
+            const points2 = data2.map((d, i) => {
+                const x = padding + (i / (data2.length - 1)) * graphWidth;
+                const y = padding + graphHeight - ((d.value - minVal) / range) * graphHeight;
+                return { x, y };
+            });
+
+            // Generate paths
+            const path1 = points1.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+            const path2 = points2.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+
+            return `
+                <div style="display: flex; flex-direction: column; gap: 3px;">
+                    <svg width="${width}" height="${height}">
+                        <path d="${path1}" stroke="${color1}" stroke-width="2" fill="none"/>
+                        <path d="${path2}" stroke="${color2}" stroke-width="2" fill="none"/>
+                    </svg>
+                    <div style="display: flex; gap: 10px; font-size: 10px;">
+                        <div><span style="color: ${color1};">●</span> ${label1}</div>
+                        <div><span style="color: ${color2};">●</span> ${label2}</div>
+                    </div>
+                </div>
+            `;
+        }
+
         function getPressureTrendHTML(weatherData) {
             if (!weatherData.history24hr || weatherData.history24hr.length === 0) {
                 return '';
