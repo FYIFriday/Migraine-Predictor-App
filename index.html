@@ -710,7 +710,7 @@
 
             <!-- Migraine Index Display -->
             <div class="migraine-index">
-                <h2>Current Migraine Risk Index</h2>
+                <h2>Migraine Risk Prediction (Next 2-12 Hours)</h2>
                 <div class="index-value" id="indexValue">--</div>
                 <div class="index-scale">
                     <div class="index-marker" id="indexMarker"></div>
@@ -1301,6 +1301,17 @@
                         const historyData = await historyResponse.json();
                         // Add historical data to weatherData
                         weatherData.history = historyData.forecast.forecastday[0];
+
+                        // Calculate 6-hour and 24-hour historical averages
+                        const now = new Date();
+                        const sixHoursAgo = new Date(now.getTime() - 6 * 60 * 60 * 1000);
+
+                        // Get all hourly data from the last 24 hours
+                        const allHours = historyData.forecast.forecastday[0].hour;
+
+                        // Filter for 6-hour window
+                        weatherData.history6hr = allHours.slice(-6); // Last 6 hours of yesterday's data
+                        weatherData.history24hr = allHours; // Full 24 hours
                     }
                 } catch (historyError) {
                     console.warn('Historical data not available:', historyError);
@@ -1665,13 +1676,13 @@
             // Update risk level text
             const riskText = document.getElementById('riskLevelText');
             if (migraineIndex <= 25) {
-                riskText.textContent = '✓ Low Risk - Good conditions today';
+                riskText.textContent = '✓ Low Risk - Migraine unlikely in next 2-12 hours';
                 riskText.style.color = '#22c55e';
             } else if (migraineIndex <= 50) {
-                riskText.textContent = '⚠ Moderate Risk - Be prepared and stay hydrated';
+                riskText.textContent = '⚠ Moderate Risk - Monitor symptoms and stay hydrated';
                 riskText.style.color = '#eab308';
             } else if (migraineIndex <= 75) {
-                riskText.textContent = '⚠️ High Risk - Consider preventive measures';
+                riskText.textContent = '⚠️ High Risk - Migraine likely soon, take preventive measures';
                 riskText.style.color = '#f97316';
             } else {
                 riskText.textContent = '🚨 Very High Risk - Take your medication if needed';
@@ -1940,17 +1951,22 @@
 
         function getFactorTooltip(factorName, factorValue, weatherData) {
             const current = weatherData.current;
-            const history = weatherData.history;
+            const history6hr = weatherData.history6hr;
+            const history24hr = weatherData.history24hr;
 
             switch(factorName) {
                 case 'Barometric Pressure':
                     let pressureText = `Current: ${current.pressure_mb} mb`;
-                    if (history && history.hour && history.hour.length > 0) {
-                        const avgHistorical = history.hour.reduce((sum, h) => sum + h.pressure_mb, 0) / history.hour.length;
-                        const change = current.pressure_mb - avgHistorical;
-                        const changeText = change > 0 ? `↑ ${change.toFixed(1)}mb` : `↓ ${Math.abs(change).toFixed(1)}mb`;
-                        pressureText += `\n24hr Change: ${changeText}`;
-                        if (Math.abs(change) > 5) {
+                    if (history6hr && history6hr.length > 0) {
+                        const avg6hr = history6hr.reduce((sum, h) => sum + h.pressure_mb, 0) / history6hr.length;
+                        const change6hr = current.pressure_mb - avg6hr;
+                        pressureText += `\n6hr Change: ${change6hr > 0 ? '↑' : '↓'} ${Math.abs(change6hr).toFixed(1)}mb`;
+                    }
+                    if (history24hr && history24hr.length > 0) {
+                        const avg24hr = history24hr.reduce((sum, h) => sum + h.pressure_mb, 0) / history24hr.length;
+                        const change24hr = current.pressure_mb - avg24hr;
+                        pressureText += `\n24hr Change: ${change24hr > 0 ? '↑' : '↓'} ${Math.abs(change24hr).toFixed(1)}mb`;
+                        if (Math.abs(change24hr) > 5) {
                             pressureText += `\n\nRapid pressure changes are a strong migraine trigger`;
                         }
                     }
@@ -1958,12 +1974,16 @@
 
                 case 'Temperature':
                     let tempText = `Current: ${current.temp_c}°C / ${current.temp_f}°F`;
-                    if (history && history.hour && history.hour.length > 0) {
-                        const avgHistorical = history.hour.reduce((sum, h) => sum + h.temp_c, 0) / history.hour.length;
-                        const change = current.temp_c - avgHistorical;
-                        const changeText = change > 0 ? `↑ ${change.toFixed(1)}°C` : `↓ ${Math.abs(change).toFixed(1)}°C`;
-                        tempText += `\n24hr Change: ${changeText}`;
-                        if (Math.abs(change) > 5) {
+                    if (history6hr && history6hr.length > 0) {
+                        const avg6hr = history6hr.reduce((sum, h) => sum + h.temp_c, 0) / history6hr.length;
+                        const change6hr = current.temp_c - avg6hr;
+                        tempText += `\n6hr Change: ${change6hr > 0 ? '↑' : '↓'} ${Math.abs(change6hr).toFixed(1)}°C`;
+                    }
+                    if (history24hr && history24hr.length > 0) {
+                        const avg24hr = history24hr.reduce((sum, h) => sum + h.temp_c, 0) / history24hr.length;
+                        const change24hr = current.temp_c - avg24hr;
+                        tempText += `\n24hr Change: ${change24hr > 0 ? '↑' : '↓'} ${Math.abs(change24hr).toFixed(1)}°C`;
+                        if (Math.abs(change24hr) > 5) {
                             tempText += `\n\nRapid temperature changes can trigger migraines`;
                         } else if (current.temp_c >= 18 && current.temp_c <= 24) {
                             tempText += `\n\nTemperature in comfortable range`;
@@ -1975,18 +1995,89 @@
                     }
                     return tempText;
 
+                case 'Humidity':
+                    let humidityText = `Current: ${current.humidity}%`;
+                    if (history6hr && history6hr.length > 0) {
+                        const avg6hr = history6hr.reduce((sum, h) => sum + h.humidity, 0) / history6hr.length;
+                        const change6hr = current.humidity - avg6hr;
+                        humidityText += `\n6hr Change: ${change6hr > 0 ? '↑' : '↓'} ${Math.abs(change6hr).toFixed(0)}%`;
+                    }
+                    if (history24hr && history24hr.length > 0) {
+                        const avg24hr = history24hr.reduce((sum, h) => sum + h.humidity, 0) / history24hr.length;
+                        const change24hr = current.humidity - avg24hr;
+                        humidityText += `\n24hr Change: ${change24hr > 0 ? '↑' : '↓'} ${Math.abs(change24hr).toFixed(0)}%`;
+                        if (current.humidity > 70) {
+                            humidityText += `\n\nHigh humidity increases migraine risk`;
+                        }
+                    }
+                    return humidityText;
+
+                case 'Air Quality Index':
+                    const aqiValue = current.air_quality?.['us-epa-index'] || 1;
+                    let aqiText = `Current AQI: ${aqiValue} (${factorValue})`;
+                    if (history6hr && history6hr.length > 0 && history6hr[0].air_quality) {
+                        const avg6hr = history6hr.reduce((sum, h) => sum + (h.air_quality?.['us-epa-index'] || 1), 0) / history6hr.length;
+                        const change6hr = aqiValue - avg6hr;
+                        aqiText += `\n6hr Change: ${change6hr > 0 ? '↑' : '↓'} ${Math.abs(change6hr).toFixed(0)}`;
+                    }
+                    if (history24hr && history24hr.length > 0 && history24hr[0].air_quality) {
+                        const avg24hr = history24hr.reduce((sum, h) => sum + (h.air_quality?.['us-epa-index'] || 1), 0) / history24hr.length;
+                        const change24hr = aqiValue - avg24hr;
+                        aqiText += `\n24hr Change: ${change24hr > 0 ? '↑' : '↓'} ${Math.abs(change24hr).toFixed(0)}`;
+                        if (aqiValue > 3) {
+                            aqiText += `\n\nPoor air quality increases migraine risk`;
+                        }
+                    }
+                    return aqiText;
+
+                case 'Precipitation':
+                    if (current.precip_mm === 0) {
+                        return ''; // No hover for zero precipitation
+                    }
+                    let precipText = `Current: ${current.precip_mm} mm`;
+                    if (history6hr && history6hr.length > 0) {
+                        const avg6hr = history6hr.reduce((sum, h) => sum + h.precip_mm, 0) / history6hr.length;
+                        precipText += `\n6hr Average: ${avg6hr.toFixed(1)} mm`;
+                    }
+                    if (history24hr && history24hr.length > 0) {
+                        const avg24hr = history24hr.reduce((sum, h) => sum + h.precip_mm, 0) / history24hr.length;
+                        precipText += `\n24hr Average: ${avg24hr.toFixed(1)} mm`;
+                        precipText += `\n\nRain often accompanies pressure changes`;
+                    }
+                    return precipText;
+
+                case 'Wind Speed':
+                    let windText = `Current: ${current.wind_kph} km/h`;
+                    if (history6hr && history6hr.length > 0) {
+                        const avg6hr = history6hr.reduce((sum, h) => sum + h.wind_kph, 0) / history6hr.length;
+                        const change6hr = current.wind_kph - avg6hr;
+                        windText += `\n6hr Change: ${change6hr > 0 ? '↑' : '↓'} ${Math.abs(change6hr).toFixed(1)} km/h`;
+                    }
+                    if (history24hr && history24hr.length > 0) {
+                        const avg24hr = history24hr.reduce((sum, h) => sum + h.wind_kph, 0) / history24hr.length;
+                        const change24hr = current.wind_kph - avg24hr;
+                        windText += `\n24hr Change: ${change24hr > 0 ? '↑' : '↓'} ${Math.abs(change24hr).toFixed(1)} km/h`;
+                        if (current.wind_kph > 24) {
+                            windText += `\n\nHigh winds associated with weather systems`;
+                        }
+                    }
+                    return windText;
+
+                case 'Time of Day':
+                    return ''; // No hover for Time of Day
+
                 default:
                     return factorValue;
             }
         }
 
         function getPressureTrendHTML(weatherData) {
-            if (!weatherData.history || !weatherData.history.hour || weatherData.history.hour.length === 0) {
+            if (!weatherData.history24hr || weatherData.history24hr.length === 0) {
                 return '';
             }
 
             const current = weatherData.current.pressure_mb;
-            const avgHistorical = weatherData.history.hour.reduce((sum, h) => sum + h.pressure_mb, 0) / weatherData.history.hour.length;
+            const avgHistorical = weatherData.history24hr.reduce((sum, h) => sum + h.pressure_mb, 0) / weatherData.history24hr.length;
             const change = current - avgHistorical;
 
             if (Math.abs(change) < 3) {
@@ -2063,12 +2154,42 @@
                 return { value, filled };
             };
 
+            const getAlcoholDisplay = () => {
+                const filled = userState.filledFields.alcohol;
+                const labels = { 0: 'None', 1: '1-2 drinks', 3: '3-4 drinks', 5: '5+ drinks' };
+                const value = filled ? labels[userState.alcohol] : 'None (default)';
+                return { value, filled };
+            };
+
+            const getExerciseDisplay = () => {
+                const filled = userState.filledFields.exercise;
+                const labels = { 0: 'None', 1: 'Light', 2: 'Moderate', 3: 'Intense' };
+                const value = filled ? labels[userState.exercise] : 'None (default)';
+                return { value, filled };
+            };
+
+            const getLightExposureDisplay = () => {
+                const filled = userState.filledFields.lightExposure;
+                const total = userState.lightExposure.sunlight + userState.lightExposure.fluorescent + userState.lightExposure.screen;
+                const value = filled ? `${total.toFixed(1)} hrs` : '0 hrs (default)';
+                return { value, filled };
+            };
+
+            const getScentsDisplay = () => {
+                const filled = userState.filledFields.scents;
+                const value = filled ? `${userState.scents} hrs` : '0 hrs (default)';
+                return { value, filled };
+            };
+
             const sleepInfo = getSleepDisplay();
             const stressInfo = getStressDisplay();
             const foodInfo = getFoodDisplay();
             const hydrationInfo = getHydrationDisplay();
             const caffeineInfo = getCaffeineDisplay();
-            const screenInfo = getScreenDisplay();
+            const alcoholInfo = getAlcoholDisplay();
+            const exerciseInfo = getExerciseDisplay();
+            const lightExposureInfo = getLightExposureDisplay();
+            const scentsInfo = getScentsDisplay();
             const menstrualInfo = getMenstrualDisplay();
 
             const factorDisplays = [
@@ -2157,11 +2278,32 @@
                     filled: caffeineInfo.filled
                 },
                 {
-                    name: 'Screen Time',
-                    value: screenInfo.value,
-                    risk: factors.screen,
-                    tooltip: 'Prolonged screen exposure causes eye strain and may trigger migraines, particularly with bright screens or blue light exposure.',
-                    filled: screenInfo.filled
+                    name: 'Alcohol (24hrs)',
+                    value: alcoholInfo.value,
+                    risk: factors.alcohol,
+                    tooltip: 'Alcohol causes vasodilation and dehydration, both of which can trigger migraines. Even moderate amounts can be problematic.',
+                    filled: alcoholInfo.filled
+                },
+                {
+                    name: 'Exercise (24hrs)',
+                    value: exerciseInfo.value,
+                    risk: factors.exercise,
+                    tooltip: 'Exercise has a complex relationship with migraines. Regular moderate exercise is protective, but intense exercise or overexertion can trigger attacks.',
+                    filled: exerciseInfo.filled
+                },
+                {
+                    name: 'Light Exposure Today',
+                    value: lightExposureInfo.value,
+                    risk: factors.lightExposure,
+                    tooltip: 'Bright light, especially sunlight, fluorescent lighting, and screen glare, can trigger migraines in photosensitive individuals.',
+                    filled: lightExposureInfo.filled
+                },
+                {
+                    name: 'Strong Scents Exposure',
+                    value: scentsInfo.value,
+                    risk: factors.scents,
+                    tooltip: 'Strong odors (perfumes, cleaning products, smoke) can trigger migraines through trigeminal nerve activation.',
+                    filled: scentsInfo.filled
                 },
                 {
                     name: 'Menstrual Cycle',
@@ -2176,12 +2318,13 @@
                 const isSleep = factor.name === 'Sleep Quality';
                 const tooltipText = getFactorTooltip(factor.name, factor.value, weatherData);
                 const pressureTrend = factor.name === 'Barometric Pressure' ? getPressureTrendHTML(weatherData) : '';
+                const hasTooltip = tooltipText && tooltipText.trim() !== '';
 
                 const scaleHTML = isSleep
                     ? generateSleepBlockScale(userState.sleep, !factor.filled)
                     : `<div class="factor-scale">
                         <div class="factor-marker" style="left: ${factor.risk}%">
-                            <div class="factor-marker-tooltip">${tooltipText}</div>
+                            ${hasTooltip ? `<div class="factor-marker-tooltip">${tooltipText}</div>` : ''}
                         </div>
                        </div>`;
 
