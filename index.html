@@ -3251,22 +3251,10 @@
                     ${isSubcategory ? '' : pressureTrend}
                     ${scaleHTML}
                     ${!factor.filled ? '<div class="factor-prompt">Click to fill out in Advanced Mode</div>' : ''}
+                    ${graphHTML ? `<div style="margin-top: 10px;">${graphHTML}</div>` : ''}
                 `;
 
-                if (hasSplit) {
-                    return `
-                        <div class="factor-split">
-                            <div class="factor-split-left">
-                                ${factorContent}
-                            </div>
-                            <div class="factor-split-right">
-                                ${graphHTML}
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    return factorContent;
-                }
+                return factorContent;
             };
 
             container.innerHTML = factorDisplays.map(factor => {
