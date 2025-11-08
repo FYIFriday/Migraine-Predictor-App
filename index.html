@@ -505,7 +505,7 @@
         .factor-marker-tooltip {
             display: none;
             position: absolute;
-            bottom: 25px;
+            bottom: 35px;
             left: 50%;
             transform: translateX(-50%);
             background: #333;
@@ -517,6 +517,7 @@
             z-index: 100;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
             white-space: pre-line;
+            pointer-events: none;
         }
 
         .factor-marker:hover .factor-marker-tooltip,
@@ -2598,15 +2599,15 @@
             switch(factorName) {
                 case 'Barometric Pressure':
                     let pressureText = `Current: ${current.pressure_mb} mb`;
+                    if (forecast6hr && forecast6hr.length > 0) {
+                        const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.pressure_mb, 0) / forecast6hr.length;
+                        const predictedChange = avg6hrForecast - current.pressure_mb;
+                        pressureText += `\n6hr Future: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(1)}mb`;
+                    }
                     if (history6hr && history6hr.length > 0) {
                         const avg6hr = history6hr.reduce((sum, h) => sum + h.pressure_mb, 0) / history6hr.length;
                         const change6hr = current.pressure_mb - avg6hr;
                         pressureText += `\n6hr History: ${change6hr > 0 ? '↑' : '↓'} ${Math.abs(change6hr).toFixed(1)}mb`;
-                    }
-                    if (forecast6hr && forecast6hr.length > 0) {
-                        const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.pressure_mb, 0) / forecast6hr.length;
-                        const predictedChange = avg6hrForecast - current.pressure_mb;
-                        pressureText += `\n6hr Forecast: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(1)}mb`;
                     }
                     if (history24hr && history24hr.length > 0) {
                         const avg24hr = history24hr.reduce((sum, h) => sum + h.pressure_mb, 0) / history24hr.length;
@@ -2620,15 +2621,15 @@
 
                 case 'Temperature':
                     let tempText = `Current: ${current.temp_c}°C / ${current.temp_f}°F`;
+                    if (forecast6hr && forecast6hr.length > 0) {
+                        const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.temp_c, 0) / forecast6hr.length;
+                        const predictedChange = avg6hrForecast - current.temp_c;
+                        tempText += `\n6hr Future: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(1)}°C`;
+                    }
                     if (history6hr && history6hr.length > 0) {
                         const avg6hr = history6hr.reduce((sum, h) => sum + h.temp_c, 0) / history6hr.length;
                         const change6hr = current.temp_c - avg6hr;
                         tempText += `\n6hr History: ${change6hr > 0 ? '↑' : '↓'} ${Math.abs(change6hr).toFixed(1)}°C`;
-                    }
-                    if (forecast6hr && forecast6hr.length > 0) {
-                        const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.temp_c, 0) / forecast6hr.length;
-                        const predictedChange = avg6hrForecast - current.temp_c;
-                        tempText += `\n6hr Forecast: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(1)}°C`;
                     }
                     if (history24hr && history24hr.length > 0) {
                         const avg24hr = history24hr.reduce((sum, h) => sum + h.temp_c, 0) / history24hr.length;
@@ -2648,15 +2649,15 @@
 
                 case 'Humidity':
                     let humidityText = `Current: ${current.humidity}%`;
+                    if (forecast6hr && forecast6hr.length > 0) {
+                        const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.humidity, 0) / forecast6hr.length;
+                        const predictedChange = avg6hrForecast - current.humidity;
+                        humidityText += `\n6hr Future: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(0)}%`;
+                    }
                     if (history6hr && history6hr.length > 0) {
                         const avg6hr = history6hr.reduce((sum, h) => sum + h.humidity, 0) / history6hr.length;
                         const change6hr = current.humidity - avg6hr;
                         humidityText += `\n6hr History: ${change6hr > 0 ? '↑' : '↓'} ${Math.abs(change6hr).toFixed(0)}%`;
-                    }
-                    if (forecast6hr && forecast6hr.length > 0) {
-                        const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.humidity, 0) / forecast6hr.length;
-                        const predictedChange = avg6hrForecast - current.humidity;
-                        humidityText += `\n6hr Forecast: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(0)}%`;
                     }
                     if (history24hr && history24hr.length > 0) {
                         const avg24hr = history24hr.reduce((sum, h) => sum + h.humidity, 0) / history24hr.length;
@@ -2671,15 +2672,15 @@
                 case 'Air Quality Index':
                     const aqiValue = current.air_quality?.['us-epa-index'] || 1;
                     let aqiText = `Current AQI: ${aqiValue} (${factorValue})`;
+                    if (forecast6hr && forecast6hr.length > 0 && forecast6hr[0].air_quality) {
+                        const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + (h.air_quality?.['us-epa-index'] || 1), 0) / forecast6hr.length;
+                        const predictedChange = avg6hrForecast - aqiValue;
+                        aqiText += `\n6hr Future: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(0)}`;
+                    }
                     if (history6hr && history6hr.length > 0 && history6hr[0].air_quality) {
                         const avg6hr = history6hr.reduce((sum, h) => sum + (h.air_quality?.['us-epa-index'] || 1), 0) / history6hr.length;
                         const change6hr = aqiValue - avg6hr;
                         aqiText += `\n6hr History: ${change6hr > 0 ? '↑' : '↓'} ${Math.abs(change6hr).toFixed(0)}`;
-                    }
-                    if (forecast6hr && forecast6hr.length > 0 && forecast6hr[0].air_quality) {
-                        const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + (h.air_quality?.['us-epa-index'] || 1), 0) / forecast6hr.length;
-                        const predictedChange = avg6hrForecast - aqiValue;
-                        aqiText += `\n6hr Forecast: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(0)}`;
                     }
                     if (history24hr && history24hr.length > 0 && history24hr[0].air_quality) {
                         const avg24hr = history24hr.reduce((sum, h) => sum + (h.air_quality?.['us-epa-index'] || 1), 0) / history24hr.length;
@@ -2693,13 +2694,13 @@
 
                 case 'Precipitation':
                     let precipText = `Current: ${current.precip_mm} mm`;
+                    if (forecast6hr && forecast6hr.length > 0) {
+                        const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.precip_mm, 0) / forecast6hr.length;
+                        precipText += `\n6hr Future: ${avg6hrForecast.toFixed(1)} mm`;
+                    }
                     if (history6hr && history6hr.length > 0) {
                         const avg6hr = history6hr.reduce((sum, h) => sum + h.precip_mm, 0) / history6hr.length;
                         precipText += `\n6hr History: ${avg6hr.toFixed(1)} mm`;
-                    }
-                    if (forecast6hr && forecast6hr.length > 0) {
-                        const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.precip_mm, 0) / forecast6hr.length;
-                        precipText += `\n6hr Forecast: ${avg6hrForecast.toFixed(1)} mm`;
                     }
                     if (history24hr && history24hr.length > 0) {
                         const avg24hr = history24hr.reduce((sum, h) => sum + h.precip_mm, 0) / history24hr.length;
@@ -2710,15 +2711,15 @@
 
                 case 'Wind Speed':
                     let windText = `Current: ${current.wind_kph} km/h`;
+                    if (forecast6hr && forecast6hr.length > 0) {
+                        const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.wind_kph, 0) / forecast6hr.length;
+                        const predictedChange = avg6hrForecast - current.wind_kph;
+                        windText += `\n6hr Future: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(1)} km/h`;
+                    }
                     if (history6hr && history6hr.length > 0) {
                         const avg6hr = history6hr.reduce((sum, h) => sum + h.wind_kph, 0) / history6hr.length;
                         const change6hr = current.wind_kph - avg6hr;
                         windText += `\n6hr History: ${change6hr > 0 ? '↑' : '↓'} ${Math.abs(change6hr).toFixed(1)} km/h`;
-                    }
-                    if (forecast6hr && forecast6hr.length > 0) {
-                        const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.wind_kph, 0) / forecast6hr.length;
-                        const predictedChange = avg6hrForecast - current.wind_kph;
-                        windText += `\n6hr Forecast: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(1)} km/h`;
                     }
                     if (history24hr && history24hr.length > 0) {
                         const avg24hr = history24hr.reduce((sum, h) => sum + h.wind_kph, 0) / history24hr.length;
@@ -2731,7 +2732,51 @@
                     return windText;
 
                 case 'Time of Day':
-                    return ''; // No hover for Time of Day
+                    const hour = new Date().getHours();
+                    let timeText = `Current Time: ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+                    timeText += `\n\nMigraines are more common in early morning (4-9 AM) due to circadian rhythm factors and cortisol fluctuations.`;
+                    if (hour >= 4 && hour <= 9) {
+                        timeText += `\n\nYou are currently in the high-risk time window.`;
+                    }
+                    return timeText;
+
+                case 'Menstrual Cycle':
+                    if (userState.menstrualNotApplicable) {
+                        return 'Not applicable';
+                    }
+                    if (userState.menstrualDays === null) {
+                        return 'Set in Advanced Mode';
+                    }
+
+                    const days = userState.menstrualDays;
+                    let menstrualText = `Days until next cycle: ${days}`;
+
+                    // Calculate phase based on days away
+                    let phase = '';
+                    if (days === 0 || (days >= 26 && days <= 28)) {
+                        phase = 'Menstruation (Days 0-5)';
+                        menstrualText += `\n\nPhase: ${phase}`;
+                        menstrualText += `\nRisk is HIGHEST during this phase`;
+                    } else if (days >= 1 && days <= 5) {
+                        phase = 'Menstruation (Days 0-5)';
+                        menstrualText += `\n\nPhase: ${phase}`;
+                        menstrualText += `\nRisk is HIGHEST during this phase`;
+                    } else if (days >= 6 && days <= 13) {
+                        phase = 'Follicular Phase (Days 6-13)';
+                        menstrualText += `\n\nPhase: ${phase}`;
+                        menstrualText += `\nRisk is lower during this phase`;
+                    } else if (days >= 14 && days <= 16) {
+                        phase = 'Ovulation (Days 14-16)';
+                        menstrualText += `\n\nPhase: ${phase}`;
+                        menstrualText += `\nRisk may vary during ovulation`;
+                    } else if (days >= 17 && days <= 25) {
+                        phase = 'Luteal Phase (Days 17-28)';
+                        menstrualText += `\n\nPhase: ${phase}`;
+                        menstrualText += `\nRisk increases in late luteal phase`;
+                    }
+
+                    menstrualText += `\n\nHormonal fluctuations are a significant trigger. Risk is highest 2 days before through the first 3 days of menstruation.`;
+                    return menstrualText;
 
                 default:
                     return factorValue;
