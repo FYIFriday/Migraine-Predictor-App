@@ -267,6 +267,10 @@
             background: #d0d0d0;
         }
 
+        input[type="range"].plain-slider {
+            background: #d0d0d0;
+        }
+
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -702,7 +706,7 @@
                         <div style="font-size: 11px; margin-top: 5px;">5+ per month</div>
                     </div>
                     <div class="frequency-option freq-6" data-freq="6" onclick="selectFrequency(6)">
-                        <div>Oh God</div>
+                        <div>💀</div>
                         <div style="font-size: 11px; margin-top: 5px;">10+ per month</div>
                     </div>
                 </div>
@@ -710,7 +714,7 @@
 
             <!-- Migraine Index Display -->
             <div class="migraine-index">
-                <h2>Migraine Risk Prediction (Next 2-12 Hours)</h2>
+                <h2>Migraine Risk Prediction (Next 12 Hours)</h2>
                 <div class="index-value" id="indexValue">--</div>
                 <div class="index-scale">
                     <div class="index-marker" id="indexMarker"></div>
@@ -778,25 +782,14 @@
                             <button onclick="setDrankToday(true)">Yes</button>
                         </div>
                         <div class="sub-question" id="hydrationDetailsQuestion">
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                                <div>
-                                    <label style="font-size: 14px; margin-bottom: 5px; display: block;">
-                                        Glasses of water (8oz)
-                                        <span class="info-icon">?
-                                            <span class="tooltip">1 glass = 8 fl oz. Adults need 8-12 glasses per day for adequate hydration. This helps track your water intake specifically.</span>
-                                        </span>
-                                    </label>
-                                    <input type="number" id="waterGlassesInput" min="0" max="30" value="0" placeholder="0" onchange="updateHydrationDetails()" style="width: 100%;">
-                                </div>
-                                <div>
-                                    <label style="font-size: 14px; margin-bottom: 5px; display: block;">
-                                        Total fluid intake (fl oz)
-                                        <span class="info-icon">?
-                                            <span class="tooltip">Adults need approximately 64-100 fl oz (8-12 cups) of fluids per day, varying by body size, activity level, and climate. Adequate hydration helps prevent migraines.</span>
-                                        </span>
-                                    </label>
-                                    <input type="number" id="fluidOzInput" placeholder="e.g., 64" min="0" onchange="updateHydration()" style="width: 100%;">
-                                </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="font-size: 14px; margin-bottom: 5px; display: block;">
+                                    Total fluid intake (fl oz)
+                                    <span class="info-icon">?
+                                        <span class="tooltip">Adults need approximately 64-100 fl oz (8-12 cups) of fluids per day, varying by body size, activity level, and climate. Adequate hydration helps prevent migraines.</span>
+                                    </span>
+                                </label>
+                                <input type="number" id="fluidOzInput" placeholder="e.g., 64" min="0" onchange="updateHydration()" style="width: 100%;">
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <input type="checkbox" id="waterCheckbox" onchange="updateHydration()" style="width: auto; padding: 0;">
@@ -882,42 +875,48 @@
                                 <option value="above">Above my usual intake</option>
                             </select>
                         </div>
-                        <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                            <div>
-                                <label style="font-size: 14px; margin-bottom: 5px;">
-                                    Cups of coffee
-                                    <span class="info-icon">?
-                                        <span class="tooltip">1 cup of coffee contains approximately 95mg of caffeine. This helps track your exact caffeine intake.</span>
-                                    </span>
-                                </label>
-                                <input type="number" id="coffeeCupsInput" min="0" max="20" value="0" placeholder="0" onchange="updateCaffeineDetails()" style="width: 100%;">
+                        <!-- Optional Caffeine Calculator -->
+                        <div style="margin-top: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9fafb;">
+                            <div style="font-size: 13px; color: #666; margin-bottom: 10px; font-style: italic;">
+                                💡 Optional Caffeine Calculator (auto-fills "Caffeine intake today" above)
                             </div>
-                            <div>
-                                <label style="font-size: 14px; margin-bottom: 5px;">
-                                    Energy drinks
-                                    <span class="info-icon">?
-                                        <span class="tooltip">Energy drinks typically contain 80-150mg of caffeine per can. Common brands: Red Bull (80mg), Monster (160mg), Bang (300mg).</span>
-                                    </span>
-                                </label>
-                                <input type="number" id="energyDrinksInput" min="0" max="20" value="0" placeholder="0" onchange="updateCaffeineDetails()" style="width: 100%;">
-                            </div>
-                            <div>
-                                <label style="font-size: 14px; margin-bottom: 5px;">
-                                    Cups of strong tea
-                                    <span class="info-icon">?
-                                        <span class="tooltip">1 cup of strong black tea contains approximately 50mg of caffeine. Green tea contains about 30mg per cup.</span>
-                                    </span>
-                                </label>
-                                <input type="number" id="teaCupsInput" min="0" max="20" value="0" placeholder="0" onchange="updateCaffeineDetails()" style="width: 100%;">
-                            </div>
-                            <div>
-                                <label style="font-size: 14px; margin-bottom: 5px;">
-                                    Caffeine via meds (mg)
-                                    <span class="info-icon">?
-                                        <span class="tooltip">Some medications contain caffeine. Common examples: Excedrin (65mg), Midol (60mg), Anacin (32mg). Check your medication label.</span>
-                                    </span>
-                                </label>
-                                <input type="number" id="caffeineMedsInput" min="0" max="500" value="0" placeholder="0" onchange="updateCaffeineDetails()" style="width: 100%;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div>
+                                    <label style="font-size: 14px; margin-bottom: 5px;">
+                                        Cups of coffee
+                                        <span class="info-icon">?
+                                            <span class="tooltip">1 cup of coffee contains approximately 95mg of caffeine. This helps track your exact caffeine intake.</span>
+                                        </span>
+                                    </label>
+                                    <input type="number" id="coffeeCupsInput" min="0" max="20" value="0" placeholder="0" onchange="updateCaffeineDetails()" style="width: 100%;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 14px; margin-bottom: 5px;">
+                                        Energy drinks
+                                        <span class="info-icon">?
+                                            <span class="tooltip">Energy drinks typically contain 80-150mg of caffeine per can. Common brands: Red Bull (80mg), Monster (160mg), Bang (300mg).</span>
+                                        </span>
+                                    </label>
+                                    <input type="number" id="energyDrinksInput" min="0" max="20" value="0" placeholder="0" onchange="updateCaffeineDetails()" style="width: 100%;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 14px; margin-bottom: 5px;">
+                                        Cups of strong tea
+                                        <span class="info-icon">?
+                                            <span class="tooltip">1 cup of strong black tea contains approximately 50mg of caffeine. Green tea contains about 30mg per cup.</span>
+                                        </span>
+                                    </label>
+                                    <input type="number" id="teaCupsInput" min="0" max="20" value="0" placeholder="0" onchange="updateCaffeineDetails()" style="width: 100%;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 14px; margin-bottom: 5px;">
+                                        Caffeine via meds (mg)
+                                        <span class="info-icon">?
+                                            <span class="tooltip">Some medications contain caffeine. Common examples: Excedrin (65mg), Midol (60mg), Anacin (32mg). Check your medication label.</span>
+                                        </span>
+                                    </label>
+                                    <input type="number" id="caffeineMedsInput" min="0" max="500" value="0" placeholder="0" onchange="updateCaffeineDetails()" style="width: 100%;">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -925,33 +924,59 @@
                     <!-- Alcohol Consumption -->
                     <div class="advanced-item">
                         <label>
-                            Alcohol consumption (last 24 hours)
+                            Alcohol (last 24 hours)
                             <span class="info-icon">?
                                 <span class="tooltip">Alcohol is a well-known migraine trigger. It causes vasodilation, dehydration, and can disrupt sleep. Red wine and beer are common triggers due to histamines and tyramine.</span>
                             </span>
                         </label>
-                        <select id="alcoholSelect" onchange="updateAlcohol()">
-                            <option value="0" selected>None</option>
-                            <option value="1">1-2 drinks</option>
-                            <option value="3">3-4 drinks</option>
-                            <option value="5">5+ drinks</option>
-                        </select>
+                        <div class="slider-container">
+                            <span>0</span>
+                            <input type="range" min="0" max="12" step="1" value="0" id="alcoholSlider" class="plain-slider" oninput="updateAlcohol(this.value)">
+                            <span>12</span>
+                            <span class="slider-value" id="alcoholValue">0 drinks</span>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <input type="checkbox" id="regularAlcoholCheckbox" onchange="toggleRegularAlcohol()">
+                            <label for="regularAlcoholCheckbox">I regularly consume alcohol</label>
+                        </div>
+                        <div id="alcoholComparisonSection" style="display: none; margin-top: 10px;">
+                            <label style="font-size: 14px; margin-bottom: 5px; display: block;">Today's Intake Is</label>
+                            <select id="alcoholComparisonSelect" onchange="updateAlcoholComparison()">
+                                <option value="less">Less than usual</option>
+                                <option value="equal" selected>The same as usual</option>
+                                <option value="more">More than usual</option>
+                                <option value="farmore">FAR more than usual</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Exercise -->
                     <div class="advanced-item">
                         <label>
-                            Exercise intensity (last 24 hours)
+                            Exercise (last 24 hours)
                             <span class="info-icon">?
                                 <span class="tooltip">Moderate exercise can help prevent migraines by reducing stress and improving circulation. However, intense exercise can trigger migraines in some people through dehydration or blood pressure changes.</span>
                             </span>
                         </label>
-                        <select id="exerciseSelect" onchange="updateExercise()">
-                            <option value="0" selected>None</option>
-                            <option value="1">Light (walking, stretching)</option>
-                            <option value="2">Moderate (jogging, cycling)</option>
-                            <option value="3">Intense (HIIT, running, heavy lifting)</option>
-                        </select>
+                        <div class="slider-container">
+                            <span style="font-size: 11px;">None</span>
+                            <input type="range" min="0" max="3" step="1" value="0" id="exerciseSlider" class="plain-slider" oninput="updateExercise(this.value)">
+                            <span style="font-size: 11px;">Heavy</span>
+                            <span class="slider-value" id="exerciseValue">None</span>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <input type="checkbox" id="regularExerciseCheckbox" onchange="toggleRegularExercise()">
+                            <label for="regularExerciseCheckbox">I regularly exercise</label>
+                        </div>
+                        <div id="exerciseComparisonSection" style="display: none; margin-top: 10px;">
+                            <label style="font-size: 14px; margin-bottom: 5px; display: block;">Today's Exercise Is</label>
+                            <select id="exerciseComparisonSelect" onchange="updateExerciseComparison()">
+                                <option value="less">Less than usual</option>
+                                <option value="equal" selected>The same as usual</option>
+                                <option value="more">More than usual</option>
+                                <option value="farmore">FAR more than usual</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Light Exposure -->
@@ -1014,6 +1039,35 @@
                             <input type="range" min="0" max="24" step="0.5" value="0" id="scentsSlider" oninput="updateScents(this.value)">
                             <span>24</span>
                             <span class="slider-value" id="scentsValue">0 hrs</span>
+                        </div>
+                    </div>
+
+                    <!-- Marijuana Consumption -->
+                    <div class="advanced-item">
+                        <label>
+                            Marijuana (last 24 hours)
+                            <span class="info-icon">?
+                                <span class="tooltip">Marijuana's relationship with migraines is complex. Some find relief, while others experience triggers. THC can affect blood pressure and hydration. Individual responses vary significantly.</span>
+                            </span>
+                        </label>
+                        <div class="slider-container">
+                            <span>0</span>
+                            <input type="range" min="0" max="12" step="1" value="0" id="marijuanaSlider" class="plain-slider" oninput="updateMarijuana(this.value)">
+                            <span>12</span>
+                            <span class="slider-value" id="marijuanaValue">0 sessions</span>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <input type="checkbox" id="regularMarijuanaCheckbox" onchange="toggleRegularMarijuana()">
+                            <label for="regularMarijuanaCheckbox">I regularly consume marijuana</label>
+                        </div>
+                        <div id="marijuanaComparisonSection" style="display: none; margin-top: 10px;">
+                            <label style="font-size: 14px; margin-bottom: 5px; display: block;">Today's Intake Is</label>
+                            <select id="marijuanaComparisonSelect" onchange="updateMarijuanaComparison()">
+                                <option value="less">Less than usual</option>
+                                <option value="equal" selected>The same as usual</option>
+                                <option value="more">More than usual</option>
+                                <option value="farmore">FAR more than usual</option>
+                            </select>
                         </div>
                     </div>
 
@@ -1114,8 +1168,15 @@
             caffeineDetail: { cups: 0, energyDrinks: 0, teaCups: 0, meds: 0 },
             regularCaffeineConsumer: false,
             caffeineComparison: 'equal', // below, equal, above
-            alcohol: 0,  // 0=none, 1=1-2 drinks, 3=3-4 drinks, 5=5+ drinks
-            exercise: 0,  // 0=none, 1=light, 2=moderate, 3=intense
+            alcohol: 0,  // 0-12 drinks slider
+            regularAlcoholConsumer: false,
+            alcoholComparison: 'equal', // less, equal, more, farmore
+            exercise: 0,  // 0=none, 1=light, 2=moderate, 3=heavy slider
+            regularExerciser: false,
+            exerciseComparison: 'equal', // less, equal, more, farmore
+            marijuana: 0,  // 0-12 sessions slider
+            regularMarijuanaConsumer: false,
+            marijuanaComparison: 'equal', // less, equal, more, farmore
             lightExposure: { sunlight: 0, fluorescent: 0, screen: 0 },
             scents: 0,
             // Menstrual cycle
@@ -1132,6 +1193,7 @@
                 caffeine: false,
                 alcohol: false,
                 exercise: false,
+                marijuana: false,
                 lightExposure: false,
                 scents: false,
                 menstrual: false
@@ -1435,24 +1497,6 @@
             if (weatherData) calculateAndDisplayMigraineIndex();
         }
 
-        function updateHydrationDetails() {
-            const glasses = parseInt(document.getElementById('waterGlassesInput').value) || 0;
-            const estimatedOz = glasses * 8;
-
-            // Update the fluid oz input
-            document.getElementById('fluidOzInput').value = estimatedOz;
-            userState.fluidOz = estimatedOz.toString();
-
-            // Auto-check water checkbox if glasses > 0
-            if (glasses > 0) {
-                document.getElementById('waterCheckbox').checked = true;
-                userState.includedWater = true;
-            }
-
-            userState.filledFields.hydration = true;
-            if (weatherData) calculateAndDisplayMigraineIndex();
-        }
-
         function updateStress(value) {
             userState.stress = parseInt(value);
             userState.filledFields.stress = true;
@@ -1530,15 +1574,76 @@
             if (weatherData) calculateAndDisplayMigraineIndex();
         }
 
-        function updateAlcohol() {
-            userState.alcohol = parseInt(document.getElementById('alcoholSelect').value);
+        function updateAlcohol(value) {
+            userState.alcohol = parseInt(value);
             userState.filledFields.alcohol = true;
+            document.getElementById('alcoholValue').textContent = `${value} drink${value == 1 ? '' : 's'}`;
             if (weatherData) calculateAndDisplayMigraineIndex();
         }
 
-        function updateExercise() {
-            userState.exercise = parseInt(document.getElementById('exerciseSelect').value);
+        function toggleRegularAlcohol() {
+            const checked = document.getElementById('regularAlcoholCheckbox').checked;
+            userState.regularAlcoholConsumer = checked;
+            const comparisonSection = document.getElementById('alcoholComparisonSection');
+            if (checked) {
+                comparisonSection.style.display = 'block';
+            } else {
+                comparisonSection.style.display = 'none';
+            }
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function updateAlcoholComparison() {
+            userState.alcoholComparison = document.getElementById('alcoholComparisonSelect').value;
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function updateExercise(value) {
+            const labels = ['None', 'Light', 'Moderate', 'Heavy'];
+            userState.exercise = parseInt(value);
             userState.filledFields.exercise = true;
+            document.getElementById('exerciseValue').textContent = labels[value];
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function toggleRegularExercise() {
+            const checked = document.getElementById('regularExerciseCheckbox').checked;
+            userState.regularExerciser = checked;
+            const comparisonSection = document.getElementById('exerciseComparisonSection');
+            if (checked) {
+                comparisonSection.style.display = 'block';
+            } else {
+                comparisonSection.style.display = 'none';
+            }
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function updateExerciseComparison() {
+            userState.exerciseComparison = document.getElementById('exerciseComparisonSelect').value;
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function updateMarijuana(value) {
+            userState.marijuana = parseInt(value);
+            userState.filledFields.marijuana = true;
+            document.getElementById('marijuanaValue').textContent = `${value} session${value == 1 ? '' : 's'}`;
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function toggleRegularMarijuana() {
+            const checked = document.getElementById('regularMarijuanaCheckbox').checked;
+            userState.regularMarijuanaConsumer = checked;
+            const comparisonSection = document.getElementById('marijuanaComparisonSection');
+            if (checked) {
+                comparisonSection.style.display = 'block';
+            } else {
+                comparisonSection.style.display = 'none';
+            }
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function updateMarijuanaComparison() {
+            userState.marijuanaComparison = document.getElementById('marijuanaComparisonSelect').value;
             if (weatherData) calculateAndDisplayMigraineIndex();
         }
 
@@ -1626,6 +1731,7 @@
                 caffeine: calculateCaffeineRisk(userState.caffeine),
                 alcohol: calculateAlcoholRisk(userState.alcohol),
                 exercise: calculateExerciseRisk(userState.exercise),
+                marijuana: calculateMarijuanaRisk(userState.marijuana),
                 lightExposure: calculateLightExposureRisk(userState.lightExposure),
                 scents: calculateScentsRisk(userState.scents),
                 menstrual: calculateMenstrualRisk(userState.menstrualDays, userState.menstrualNotApplicable)
@@ -1633,7 +1739,7 @@
 
             // Research-based weights (totaling to 1.0)
             const weights = {
-                pressure: 0.18,      // High - most studied environmental factor
+                pressure: 0.17,      // High - most studied environmental factor
                 humidity: 0.09,      // Medium-high - 28% increase in odds
                 temperature: 0.09,   // Medium-high - 19-24% increase
                 aqi: 0.06,           // Medium - 3-5% per IQR
@@ -1645,8 +1751,9 @@
                 food: 0.05,          // Medium - blood sugar trigger
                 hydration: 0.05,     // Medium - dehydration trigger
                 caffeine: 0.04,      // Medium - withdrawal/overuse
-                alcohol: 0.04,       // Medium - vasodilation/dehydration
+                alcohol: 0.03,       // Low-medium - vasodilation/dehydration
                 exercise: 0.03,      // Low-medium - helps or triggers
+                marijuana: 0.02,     // Low - complex relationship with migraines
                 lightExposure: 0.03, // Low-medium - photosensitivity
                 scents: 0.02,        // Low - trigeminal trigger
                 menstrual: 0.05      // Medium - hormonal fluctuations
@@ -1676,13 +1783,13 @@
             // Update risk level text
             const riskText = document.getElementById('riskLevelText');
             if (migraineIndex <= 25) {
-                riskText.textContent = '✓ Low Risk - Migraine unlikely in next 2-12 hours';
+                riskText.textContent = '✓ Low Risk - Migraine unlikely in next 12 hours';
                 riskText.style.color = '#22c55e';
             } else if (migraineIndex <= 50) {
                 riskText.textContent = '⚠ Moderate Risk - Monitor symptoms and stay hydrated';
                 riskText.style.color = '#eab308';
             } else if (migraineIndex <= 75) {
-                riskText.textContent = '⚠️ High Risk - Migraine likely soon, take preventive measures';
+                riskText.textContent = '⚠️ High Risk - Migraine likely in next 12 hours, take preventive measures';
                 riskText.style.color = '#f97316';
             } else {
                 riskText.textContent = '🚨 Very High Risk - Take your medication if needed';
@@ -1890,20 +1997,83 @@
 
         function calculateAlcoholRisk(alcohol) {
             // Alcohol causes vasodilation, dehydration, disrupts sleep
-            // 0=none, 1=1-2 drinks, 3=3-4 drinks, 5=5+ drinks
-            if (alcohol === 0) return 10;
-            if (alcohol === 1) return 35; // 1-2 drinks
-            if (alcohol === 3) return 60; // 3-4 drinks
-            return 80; // 5+ drinks
+            // 0-12 drinks slider
+            const isRegular = userState.regularAlcoholConsumer;
+            const comparison = userState.alcoholComparison;
+
+            if (alcohol === 0) return 10; // No alcohol
+
+            // Base risk increases with amount
+            let baseRisk = 20 + (alcohol * 5); // 25-80 range
+
+            // If regular consumer, comparison matters
+            if (isRegular) {
+                if (comparison === 'less') {
+                    baseRisk += 15; // Withdrawal/change risk
+                } else if (comparison === 'equal') {
+                    baseRisk -= 5; // Maintained tolerance
+                } else if (comparison === 'more') {
+                    baseRisk += 10; // More than usual
+                } else if (comparison === 'farmore') {
+                    baseRisk += 30; // FAR more = high risk
+                }
+            }
+
+            return Math.min(95, Math.max(15, baseRisk));
         }
 
         function calculateExerciseRisk(exercise) {
-            // Moderate exercise helps, intense can trigger, none is neutral
-            // 0=none, 1=light, 2=moderate, 3=intense
-            if (exercise === 0) return 25; // No exercise = neutral-slightly elevated
-            if (exercise === 1) return 15; // Light = beneficial
-            if (exercise === 2) return 10; // Moderate = most beneficial
-            return 40; // Intense = can trigger through dehydration/BP changes
+            // Moderate exercise helps, intense can trigger
+            // 0=none, 1=light, 2=moderate, 3=heavy
+            const isRegular = userState.regularExerciser;
+            const comparison = userState.exerciseComparison;
+
+            if (exercise === 0) return 20; // No exercise = neutral
+
+            // Base risk: light/moderate beneficial, heavy risky
+            const baseRisks = [20, 10, 8, 35]; // none, light, moderate, heavy
+            let risk = baseRisks[exercise];
+
+            // If regular exerciser, comparison matters
+            if (isRegular) {
+                if (comparison === 'less') {
+                    risk -= 5; // Less exercise = lower risk (skipping doesn't trigger)
+                } else if (comparison === 'equal') {
+                    risk -= 3; // Regular routine = good
+                } else if (comparison === 'more') {
+                    risk += 20; // More than usual can trigger
+                } else if (comparison === 'farmore') {
+                    risk += 40; // FAR more = overexertion risk
+                }
+            }
+
+            return Math.min(80, Math.max(5, risk));
+        }
+
+        function calculateMarijuanaRisk(marijuana) {
+            // Marijuana has complex relationship with migraines
+            const isRegular = userState.regularMarijuanaConsumer;
+            const comparison = userState.marijuanaComparison;
+
+            if (marijuana === 0) return 15; // No use
+
+            // Base risk increases slightly with amount
+            let baseRisk = 18 + (marijuana * 2); // 20-42 range
+
+            // If regular consumer, comparison matters
+            if (isRegular) {
+                if (comparison === 'less') {
+                    baseRisk += 10; // Withdrawal/change risk
+                } else if (comparison === 'equal') {
+                    baseRisk -= 5; // Maintained use
+                } else if (comparison === 'more') {
+                    baseRisk += 8; // More than usual
+                } else if (comparison === 'farmore') {
+                    baseRisk += 20; // FAR more
+                }
+            }
+
+            return Math.min(70, Math.max(12, baseRisk));
         }
 
         function calculateLightExposureRisk(lightExposure) {
@@ -2156,15 +2326,20 @@
 
             const getAlcoholDisplay = () => {
                 const filled = userState.filledFields.alcohol;
-                const labels = { 0: 'None', 1: '1-2 drinks', 3: '3-4 drinks', 5: '5+ drinks' };
-                const value = filled ? labels[userState.alcohol] : 'None (default)';
+                const value = filled ? `${userState.alcohol} drink${userState.alcohol == 1 ? '' : 's'}` : '0 drinks (default)';
                 return { value, filled };
             };
 
             const getExerciseDisplay = () => {
                 const filled = userState.filledFields.exercise;
-                const labels = { 0: 'None', 1: 'Light', 2: 'Moderate', 3: 'Intense' };
+                const labels = ['None', 'Light', 'Moderate', 'Heavy'];
                 const value = filled ? labels[userState.exercise] : 'None (default)';
+                return { value, filled };
+            };
+
+            const getMarijuanaDisplay = () => {
+                const filled = userState.filledFields.marijuana;
+                const value = filled ? `${userState.marijuana} session${userState.marijuana == 1 ? '' : 's'}` : '0 sessions (default)';
                 return { value, filled };
             };
 
@@ -2188,6 +2363,7 @@
             const caffeineInfo = getCaffeineDisplay();
             const alcoholInfo = getAlcoholDisplay();
             const exerciseInfo = getExerciseDisplay();
+            const marijuanaInfo = getMarijuanaDisplay();
             const lightExposureInfo = getLightExposureDisplay();
             const scentsInfo = getScentsDisplay();
             const menstrualInfo = getMenstrualDisplay();
@@ -2290,6 +2466,13 @@
                     risk: factors.exercise,
                     tooltip: 'Exercise has a complex relationship with migraines. Regular moderate exercise is protective, but intense exercise or overexertion can trigger attacks.',
                     filled: exerciseInfo.filled
+                },
+                {
+                    name: 'Marijuana (24hrs)',
+                    value: marijuanaInfo.value,
+                    risk: factors.marijuana,
+                    tooltip: 'Marijuana has a complex relationship with migraines. Some find relief, while others experience triggers. Individual responses vary significantly.',
+                    filled: marijuanaInfo.filled
                 },
                 {
                     name: 'Light Exposure Today',
