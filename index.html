@@ -479,7 +479,17 @@
             background: #d0d0d0;
         }
 
-        /* Greyscale certain factors */
+        /* Greyscale certain factors - filled state */
+        .factor-item.greyscale-filled .factor-scale {
+            background: linear-gradient(to right, #a8a8a8, #666, #333) !important;
+        }
+
+        .factor-item.greyscale-filled .factor-marker {
+            background: #555;
+            border-color: white;
+        }
+
+        /* Greyscale certain factors - legacy (in case greyscale property is used without filled check) */
         .factor-item.factor-alcohol .factor-scale,
         .factor-item.factor-exercise .factor-scale,
         .factor-item.factor-marijuana .factor-scale {
@@ -941,7 +951,7 @@
                                 </label>
                             </div>
                             <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #444;">
-                                <label style="font-size: 14px; margin-bottom: 10px; color: #b5b5b5;">Including:</label>
+                                <label style="font-size: 14px; margin-bottom: 10px; color: #b5b5b5; display: block;">Possible Trigger Foods Ingested:</label>
                                 <div style="display: flex; flex-direction: column; gap: 8px;">
                                     <div style="display: flex; align-items: center; gap: 10px;">
                                         <input type="checkbox" id="chocolateCheckbox" onchange="updateFoodTriggers()" style="width: auto; padding: 0;">
@@ -1591,9 +1601,9 @@
             }
 
             try {
-                // Fetch forecast weather data (includes current + 12hr forecast)
+                // Fetch forecast weather data (includes current + forecast for next 2 days to ensure 12hr coverage)
                 const forecastResponse = await fetch(
-                    `https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(location)}&days=1&aqi=yes&hour=12`
+                    `https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(location)}&days=2&aqi=yes`
                 );
 
                 if (!forecastResponse.ok) {
@@ -1613,14 +1623,29 @@
                     document.getElementById('locationDisplay').textContent = locationText;
                 }
 
-                // Extract forecast hours for 6hr and 12hr windows
-                if (weatherData.forecast && weatherData.forecast.forecastday[0]) {
-                    const forecastHours = weatherData.forecast.forecastday[0].hour;
+                // Extract forecast hours for 6hr and 12hr windows (spanning across days if needed)
+                if (weatherData.forecast && weatherData.forecast.forecastday.length > 0) {
                     const currentHour = new Date().getHours();
 
+                    // Combine hours from today and tomorrow to ensure we have enough forecast data
+                    const allForecastHours = [];
+                    weatherData.forecast.forecastday.forEach(day => {
+                        allForecastHours.push(...day.hour);
+                    });
+
+                    // Find the index of the current hour
+                    const now = new Date();
+                    const currentTimeStr = now.toISOString().slice(0, 13); // Format: YYYY-MM-DDTHH
+
+                    let currentIndex = allForecastHours.findIndex(h => h.time.startsWith(currentTimeStr));
+                    if (currentIndex === -1) {
+                        // Fallback: use current hour offset
+                        currentIndex = currentHour;
+                    }
+
                     // Get next 6 hours and next 12 hours for prediction
-                    weatherData.forecast6hr = forecastHours.slice(currentHour + 1, currentHour + 7);
-                    weatherData.forecast12hr = forecastHours.slice(currentHour + 1, currentHour + 13);
+                    weatherData.forecast6hr = allForecastHours.slice(currentIndex + 1, currentIndex + 7);
+                    weatherData.forecast12hr = allForecastHours.slice(currentIndex + 1, currentIndex + 13);
                 }
 
                 // Fetch historical data (24 hours ago)
@@ -2602,7 +2627,7 @@
                     if (forecast6hr && forecast6hr.length > 0) {
                         const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.pressure_mb, 0) / forecast6hr.length;
                         const predictedChange = avg6hrForecast - current.pressure_mb;
-                        pressureText += `\n6hr Future: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(1)}mb`;
+                        pressureText += `\n+6hrs Future: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(1)}mb`;
                     }
                     if (history6hr && history6hr.length > 0) {
                         const avg6hr = history6hr.reduce((sum, h) => sum + h.pressure_mb, 0) / history6hr.length;
@@ -2624,7 +2649,7 @@
                     if (forecast6hr && forecast6hr.length > 0) {
                         const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.temp_c, 0) / forecast6hr.length;
                         const predictedChange = avg6hrForecast - current.temp_c;
-                        tempText += `\n6hr Future: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(1)}°C`;
+                        tempText += `\n+6hrs Future: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(1)}°C`;
                     }
                     if (history6hr && history6hr.length > 0) {
                         const avg6hr = history6hr.reduce((sum, h) => sum + h.temp_c, 0) / history6hr.length;
@@ -2652,7 +2677,7 @@
                     if (forecast6hr && forecast6hr.length > 0) {
                         const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.humidity, 0) / forecast6hr.length;
                         const predictedChange = avg6hrForecast - current.humidity;
-                        humidityText += `\n6hr Future: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(0)}%`;
+                        humidityText += `\n+6hrs Future: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(0)}%`;
                     }
                     if (history6hr && history6hr.length > 0) {
                         const avg6hr = history6hr.reduce((sum, h) => sum + h.humidity, 0) / history6hr.length;
@@ -2675,7 +2700,7 @@
                     if (forecast6hr && forecast6hr.length > 0 && forecast6hr[0].air_quality) {
                         const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + (h.air_quality?.['us-epa-index'] || 1), 0) / forecast6hr.length;
                         const predictedChange = avg6hrForecast - aqiValue;
-                        aqiText += `\n6hr Future: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(0)}`;
+                        aqiText += `\n+6hrs Future: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(0)}`;
                     }
                     if (history6hr && history6hr.length > 0 && history6hr[0].air_quality) {
                         const avg6hr = history6hr.reduce((sum, h) => sum + (h.air_quality?.['us-epa-index'] || 1), 0) / history6hr.length;
@@ -2696,7 +2721,7 @@
                     let precipText = `Current: ${current.precip_mm} mm`;
                     if (forecast6hr && forecast6hr.length > 0) {
                         const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.precip_mm, 0) / forecast6hr.length;
-                        precipText += `\n6hr Future: ${avg6hrForecast.toFixed(1)} mm`;
+                        precipText += `\n+6hrs Future: ${avg6hrForecast.toFixed(1)} mm`;
                     }
                     if (history6hr && history6hr.length > 0) {
                         const avg6hr = history6hr.reduce((sum, h) => sum + h.precip_mm, 0) / history6hr.length;
@@ -2714,7 +2739,7 @@
                     if (forecast6hr && forecast6hr.length > 0) {
                         const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.wind_kph, 0) / forecast6hr.length;
                         const predictedChange = avg6hrForecast - current.wind_kph;
-                        windText += `\n6hr Future: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(1)} km/h`;
+                        windText += `\n+6hrs Future: ${predictedChange > 0 ? '↑' : '↓'} ${Math.abs(predictedChange).toFixed(1)} km/h`;
                     }
                     if (history6hr && history6hr.length > 0) {
                         const avg6hr = history6hr.reduce((sum, h) => sum + h.wind_kph, 0) / history6hr.length;
@@ -3265,8 +3290,16 @@
                     `;
                 }
 
+                // Determine the appropriate class for greyscale and unfilled states
+                let stateClass = '';
+                if (!factor.filled) {
+                    stateClass = 'greyed-out';
+                } else if (factor.greyscale) {
+                    stateClass = 'greyscale-filled';
+                }
+
                 return `
-                    <div class="factor-item factor-${factorClass} ${!factor.filled || factor.greyscale ? 'greyed-out' : ''}" ${!factor.filled ? 'onclick="openAdvancedMode()"' : ''}>
+                    <div class="factor-item factor-${factorClass} ${stateClass}" ${!factor.filled ? 'onclick="openAdvancedMode()"' : ''}>
                         ${mainFactorHTML}
                         ${subcategoriesHTML}
                     </div>
