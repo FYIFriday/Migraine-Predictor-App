@@ -13,9 +13,9 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #4a4a4a 0%, #6b6b6b 50%, #5a5a5a 100%);
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #242424 100%);
             min-height: 100vh;
-            color: #333;
+            color: #d5d5d5;
             padding: 20px;
             line-height: 1.6;
         }
@@ -23,16 +23,16 @@
         .container {
             max-width: 900px;
             margin: 0 auto;
-            background-color: #d3d3d3;
+            background-color: #2a2a2a;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
         }
 
         h1 {
             text-align: center;
             margin-bottom: 30px;
-            color: #333;
+            color: #d5d5d5;
         }
 
         /* Cookie Consent Banner */
@@ -76,7 +76,7 @@
         .frequency-scale h2 {
             font-size: 16px;
             margin-bottom: 15px;
-            color: #555;
+            color: #b5b5b5;
         }
 
         .frequency-options {
@@ -116,7 +116,7 @@
 
         /* Migraine Index Display */
         .migraine-index {
-            background: white;
+            background: #353535;
             padding: 30px;
             border-radius: 10px;
             margin-bottom: 30px;
@@ -126,14 +126,14 @@
         .migraine-index h2 {
             font-size: 18px;
             margin-bottom: 15px;
-            color: #555;
+            color: #c5c5c5;
         }
 
         .index-value {
             font-size: 64px;
             font-weight: bold;
             margin-bottom: 20px;
-            color: #333;
+            color: #e0e0e0;
         }
 
         .index-scale {
@@ -148,20 +148,20 @@
             position: absolute;
             width: 20px;
             height: 20px;
-            background: #333;
-            border: 3px solid white;
+            background: #e0e0e0;
+            border: 3px solid #2a2a2a;
             border-radius: 50%;
             top: 5px;
             transform: translateX(-50%);
             transition: left 0.5s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .index-labels {
             display: flex;
             justify-content: space-between;
             font-size: 12px;
-            color: #666;
+            color: #a0a0a0;
         }
 
         /* Visual Break */
@@ -181,13 +181,13 @@
             align-items: center;
             cursor: pointer;
             padding: 15px;
-            background: #c0c0c0;
+            background: #3a3a3a;
             border-radius: 8px;
             transition: background 0.3s;
         }
 
         .advanced-toggle:hover {
-            background: #b0b0b0;
+            background: #454545;
         }
 
         .advanced-toggle span {
@@ -203,7 +203,7 @@
         .advanced-content {
             display: none;
             padding: 20px;
-            background: #c8c8c8;
+            background: #323232;
             border-radius: 0 0 8px 8px;
         }
 
@@ -219,7 +219,7 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 500;
-            color: #333;
+            color: #c5c5c5;
         }
 
         .yes-no-buttons {
@@ -230,8 +230,9 @@
         .yes-no-buttons button {
             flex: 1;
             padding: 10px;
-            border: 2px solid #999;
-            background: white;
+            border: 2px solid #555;
+            background: #404040;
+            color: #d5d5d5;
             border-radius: 5px;
             cursor: pointer;
             font-weight: 500;
@@ -239,7 +240,7 @@
         }
 
         .yes-no-buttons button:hover {
-            background: #f0f0f0;
+            background: #4a4a4a;
         }
 
         .yes-no-buttons button.active {
@@ -303,9 +304,10 @@
         select {
             width: 100%;
             padding: 10px;
-            border: 2px solid #999;
+            border: 2px solid #555;
             border-radius: 5px;
-            background: white;
+            background: #404040;
+            color: #d5d5d5;
             font-size: 14px;
             cursor: pointer;
         }
@@ -313,8 +315,10 @@
         input[type="number"] {
             width: 100%;
             padding: 10px;
-            border: 2px solid #999;
+            border: 2px solid #555;
             border-radius: 5px;
+            background: #404040;
+            color: #d5d5d5;
             font-size: 14px;
         }
 
@@ -390,29 +394,29 @@
         .factor-item {
             margin-bottom: 20px;
             padding: 15px;
-            background: #c8c8c8;
+            background: #353535;
             border-radius: 8px;
         }
 
         .factor-item.greyed-out {
-            background: #e8e8e8;
-            opacity: 0.6;
+            background: #2a2a2a;
+            opacity: 0.5;
             cursor: pointer;
             transition: opacity 0.2s;
         }
 
         .factor-item.greyed-out:hover {
-            opacity: 0.8;
+            opacity: 0.7;
         }
 
         .factor-item.greyed-out .factor-value {
             font-style: italic;
-            color: #666;
+            color: #888;
         }
 
         .factor-prompt {
             font-size: 12px;
-            color: #666;
+            color: #999;
             margin-top: 5px;
             font-style: italic;
         }
@@ -426,7 +430,7 @@
 
         .factor-name {
             font-weight: 500;
-            color: #333;
+            color: #d5d5d5;
         }
 
         .factor-value-container {
@@ -441,7 +445,7 @@
 
         .factor-value {
             font-weight: bold;
-            color: #333;
+            color: #d5d5d5;
         }
 
         .factor-value-underline {
