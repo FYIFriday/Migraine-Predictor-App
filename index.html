@@ -21,7 +21,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
             background-color: #2a2a2a;
             padding: 30px;
@@ -296,9 +296,9 @@
 
         .slider-value {
             font-weight: bold;
-            font-size: 18px;
-            min-width: 30px;
-            text-align: center;
+            font-size: 14px;
+            margin-left: 8px;
+            color: #333;
         }
 
         select {
@@ -484,7 +484,7 @@
         .factor-marker-tooltip {
             display: none;
             position: absolute;
-            bottom: 25px;
+            bottom: 40px;
             left: 50%;
             transform: translateX(-50%);
             background: #333;
@@ -761,15 +761,6 @@
                                 </span>
                             </label>
                             <input type="number" id="caloriesInput" placeholder="e.g., 1800" min="0" onchange="updateFoodIntake()" style="margin-bottom: 15px;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <input type="checkbox" id="proteinCheckbox" onchange="updateFoodIntake()" style="width: auto; padding: 0;">
-                                <label for="proteinCheckbox" style="margin: 0;">
-                                    This included sufficient protein
-                                    <span class="info-icon">?
-                                        <span class="tooltip">Adults need 0.8-1.2g of protein per kg of body weight daily (46-56g minimum for most adults). Protein helps stabilize blood sugar and may reduce migraine frequency.</span>
-                                    </span>
-                                </label>
-                            </div>
                         </div>
                     </div>
 
@@ -810,7 +801,7 @@
                     <!-- Stress Level -->
                     <div class="advanced-item">
                         <label>
-                            Stress level today
+                            Stress level today - <span class="slider-value" id="stressValue">0</span>
                             <span class="info-icon">?
                                 <span class="tooltip">Stress increases cortisol production, which can cause inflammation and brain sensitivity, triggering migraines. However, high stress doesn't guarantee a migraine.</span>
                             </span>
@@ -819,14 +810,13 @@
                             <span>0</span>
                             <input type="range" min="0" max="10" value="0" id="stressSlider" oninput="updateStress(this.value)">
                             <span>10</span>
-                            <span class="slider-value" id="stressValue">0</span>
                         </div>
                     </div>
 
                     <!-- Sleep Quality -->
                     <div class="advanced-item">
                         <label>
-                            Hours of sleep last night
+                            Hours of sleep last night - <span class="slider-value" id="sleepValue">7 hrs</span>
                             <span class="info-icon">?
                                 <span class="tooltip">Poor sleep increases oxidative stress in the brain and elevates cortisol, both of which can trigger migraines. Both too little and too much sleep are triggers. Optimal is 7-8 hours.</span>
                             </span>
@@ -835,7 +825,6 @@
                             <span>0 hrs</span>
                             <input type="range" min="0" max="15" step="0.5" value="7" id="sleepSlider" class="sleep-slider" oninput="updateSleep(this.value)">
                             <span>15+ hrs</span>
-                            <span class="slider-value" id="sleepValue">7 hrs</span>
                         </div>
                     </div>
 
@@ -928,7 +917,7 @@
                     <!-- Alcohol Consumption -->
                     <div class="advanced-item">
                         <label>
-                            Alcohol (last 24 hours)
+                            Alcohol (last 24 hours) - <span class="slider-value" id="alcoholValue">0 drinks</span>
                             <span class="info-icon">?
                                 <span class="tooltip">Alcohol is a well-known migraine trigger. It causes vasodilation, dehydration, and can disrupt sleep. Red wine and beer are common triggers due to histamines and tyramine.</span>
                             </span>
@@ -937,7 +926,6 @@
                             <span>0</span>
                             <input type="range" min="0" max="12" step="1" value="0" id="alcoholSlider" class="plain-slider" oninput="updateAlcohol(this.value)">
                             <span>12</span>
-                            <span class="slider-value" id="alcoholValue">0 drinks</span>
                         </div>
                         <div style="margin-top: 15px;">
                             <input type="checkbox" id="regularAlcoholCheckbox" onchange="toggleRegularAlcohol()">
@@ -957,7 +945,7 @@
                     <!-- Exercise -->
                     <div class="advanced-item">
                         <label>
-                            Exercise (last 24 hours)
+                            Exercise (last 24 hours) - <span class="slider-value" id="exerciseValue">None</span>
                             <span class="info-icon">?
                                 <span class="tooltip">Moderate exercise can help prevent migraines by reducing stress and improving circulation. However, intense exercise can trigger migraines in some people through dehydration or blood pressure changes.</span>
                             </span>
@@ -966,7 +954,6 @@
                             <span style="font-size: 11px;">None</span>
                             <input type="range" min="0" max="3" step="1" value="0" id="exerciseSlider" class="plain-slider" oninput="updateExercise(this.value)">
                             <span style="font-size: 11px;">Heavy</span>
-                            <span class="slider-value" id="exerciseValue">None</span>
                         </div>
                         <div style="margin-top: 15px;">
                             <input type="checkbox" id="regularExerciseCheckbox" onchange="toggleRegularExercise()">
@@ -988,7 +975,7 @@
                         <label>Light exposure today</label>
                         <div style="margin-top: 10px;">
                             <label style="font-size: 14px; margin-bottom: 5px; display: block;">
-                                Direct sunlight (hours)
+                                Direct sunlight (hours) - <span class="slider-value" id="sunlightValue">0 hrs</span>
                                 <span class="info-icon">?
                                     <span class="tooltip">Bright sunlight can trigger migraines in photosensitive individuals. UV exposure and glare are common triggers.</span>
                                 </span>
@@ -997,12 +984,11 @@
                                 <span>0</span>
                                 <input type="range" min="0" max="24" step="0.5" value="0" id="sunlightSlider" oninput="updateSunlight(this.value)">
                                 <span>24</span>
-                                <span class="slider-value" id="sunlightValue">0 hrs</span>
                             </div>
                         </div>
                         <div style="margin-top: 10px;">
                             <label style="font-size: 14px; margin-bottom: 5px; display: block;">
-                                Fluorescent light (hours)
+                                Fluorescent light (hours) - <span class="slider-value" id="fluorescentValue">0 hrs</span>
                                 <span class="info-icon">?
                                     <span class="tooltip">Fluorescent lighting flickers at a frequency that can trigger migraines in sensitive individuals. Office environments often have prolonged fluorescent exposure.</span>
                                 </span>
@@ -1011,12 +997,11 @@
                                 <span>0</span>
                                 <input type="range" min="0" max="24" step="0.5" value="0" id="fluorescentSlider" oninput="updateFluorescent(this.value)">
                                 <span>24</span>
-                                <span class="slider-value" id="fluorescentValue">0 hrs</span>
                             </div>
                         </div>
                         <div style="margin-top: 10px;">
                             <label style="font-size: 14px; margin-bottom: 5px; display: block;">
-                                Screen light (hours)
+                                Screen light (hours) - <span class="slider-value" id="screenValue">0 hrs</span>
                                 <span class="info-icon">?
                                     <span class="tooltip">Prolonged screen exposure can cause eye strain and trigger migraines, particularly with bright screens or blue light exposure. Screens emit blue light which can be particularly triggering.</span>
                                 </span>
@@ -1025,7 +1010,6 @@
                                 <span>0</span>
                                 <input type="range" min="0" max="24" step="0.5" value="0" id="screenSlider" oninput="updateScreen(this.value)">
                                 <span>24</span>
-                                <span class="slider-value" id="screenValue">0 hrs</span>
                             </div>
                         </div>
                     </div>
@@ -1033,7 +1017,7 @@
                     <!-- Strong Scents -->
                     <div class="advanced-item">
                         <label>
-                            Exposure to strong scents (hours)
+                            Exposure to strong scents (hours) - <span class="slider-value" id="scentsValue">0 hrs</span>
                             <span class="info-icon">?
                                 <span class="tooltip">Strong smells (perfumes, cleaning products, smoke, paint fumes) can trigger migraines in sensitive individuals through trigeminal nerve stimulation.</span>
                             </span>
@@ -1042,14 +1026,13 @@
                             <span>0</span>
                             <input type="range" min="0" max="24" step="0.5" value="0" id="scentsSlider" oninput="updateScents(this.value)">
                             <span>24</span>
-                            <span class="slider-value" id="scentsValue">0 hrs</span>
                         </div>
                     </div>
 
                     <!-- Marijuana Consumption -->
                     <div class="advanced-item">
                         <label>
-                            Marijuana (last 24 hours)
+                            Marijuana (last 24 hours) - <span class="slider-value" id="marijuanaValue">0 sessions</span>
                             <span class="info-icon">?
                                 <span class="tooltip">Marijuana's relationship with migraines is complex. Some find relief, while others experience triggers. THC can affect blood pressure and hydration. Individual responses vary significantly.</span>
                             </span>
@@ -1058,7 +1041,6 @@
                             <span>0</span>
                             <input type="range" min="0" max="12" step="1" value="0" id="marijuanaSlider" class="plain-slider" oninput="updateMarijuana(this.value)">
                             <span>12</span>
-                            <span class="slider-value" id="marijuanaValue">0 sessions</span>
                         </div>
                         <div style="margin-top: 15px;">
                             <input type="checkbox" id="regularMarijuanaCheckbox" onchange="toggleRegularMarijuana()">
@@ -1072,6 +1054,20 @@
                                 <option value="more">More than usual</option>
                                 <option value="farmore">FAR more than usual</option>
                             </select>
+                        </div>
+                    </div>
+
+                    <!-- Other Triggers -->
+                    <div class="advanced-item">
+                        <label>
+                            <input type="checkbox" id="otherTriggersCheckbox" onchange="updateOtherTriggers()" style="width: auto; margin-right: 8px;">
+                            Other triggers
+                            <span class="info-icon">?
+                                <span class="tooltip">Migraine triggers vary from person to person. Common triggers include certain foods, weather changes, stress, and sleep patterns. Track your patterns to identify your personal triggers.</span>
+                            </span>
+                        </label>
+                        <div style="font-size: 12px; color: #666; margin-top: 5px; font-style: italic;">
+                            triggers vary by person
                         </div>
                     </div>
 
@@ -1505,7 +1501,6 @@
 
         function updateFoodIntake() {
             userState.calories = document.getElementById('caloriesInput').value;
-            userState.sufficientProtein = document.getElementById('proteinCheckbox').checked;
             userState.filledFields.food = true;
             saveUserPreferences();
             if (weatherData) calculateAndDisplayMigraineIndex();
@@ -1686,6 +1681,12 @@
 
         function updateMarijuanaComparison() {
             userState.marijuanaComparison = document.getElementById('marijuanaComparisonSelect').value;
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function updateOtherTriggers() {
+            userState.otherTriggers = document.getElementById('otherTriggersCheckbox').checked;
+            userState.filledFields.otherTriggers = true;
             if (weatherData) calculateAndDisplayMigraineIndex();
         }
 
@@ -2263,23 +2264,6 @@
                     }
                     return aqiText;
 
-                case 'Precipitation':
-                    let precipText = `Current: ${current.precip_mm} mm`;
-                    if (history6hr && history6hr.length > 0) {
-                        const avg6hr = history6hr.reduce((sum, h) => sum + h.precip_mm, 0) / history6hr.length;
-                        precipText += `\n6hr History: ${avg6hr.toFixed(1)} mm`;
-                    }
-                    if (forecast6hr && forecast6hr.length > 0) {
-                        const avg6hrForecast = forecast6hr.reduce((sum, h) => sum + h.precip_mm, 0) / forecast6hr.length;
-                        precipText += `\n6hr Forecast: ${avg6hrForecast.toFixed(1)} mm`;
-                    }
-                    if (history24hr && history24hr.length > 0) {
-                        const avg24hr = history24hr.reduce((sum, h) => sum + h.precip_mm, 0) / history24hr.length;
-                        precipText += `\n24hr History: ${avg24hr.toFixed(1)} mm`;
-                        precipText += `\n\nRain often accompanies pressure changes`;
-                    }
-                    return precipText;
-
                 case 'Wind Speed':
                     let windText = `Current: ${current.wind_kph} km/h`;
                     if (history6hr && history6hr.length > 0) {
@@ -2467,13 +2451,6 @@
                     filled: true
                 },
                 {
-                    name: 'Precipitation',
-                    value: `${current.precip_mm} mm`,
-                    risk: factors.precipitation,
-                    tooltip: 'Precipitation often accompanies pressure changes and weather fronts, which can trigger migraines. The type and intensity matter.',
-                    filled: true
-                },
-                {
                     name: 'Wind Speed',
                     value: `${current.wind_kph} km/h`,
                     risk: factors.wind,
@@ -2482,7 +2459,7 @@
                 },
                 {
                     name: 'Time of Day',
-                    value: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    value: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
                     risk: factors.time,
                     tooltip: 'Migraines are more common in early morning (4-9 AM) due to circadian rhythm factors and cortisol fluctuations.',
                     filled: true
