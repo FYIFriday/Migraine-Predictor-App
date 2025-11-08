@@ -594,30 +594,33 @@
         }
 
         .modal-content {
-            background: white;
+            background: #2a2a2a;
             padding: 30px;
             border-radius: 10px;
             max-width: 500px;
             width: 90%;
+            border: 1px solid #555;
         }
 
         .modal-content h2 {
             margin-bottom: 15px;
-            color: #333;
+            color: #d5d5d5;
         }
 
         .modal-content p {
             margin-bottom: 20px;
-            color: #666;
+            color: #b5b5b5;
         }
 
         .modal-content input {
             width: 100%;
             padding: 12px;
-            border: 2px solid #999;
+            border: 2px solid #555;
             border-radius: 5px;
             margin-bottom: 15px;
             font-size: 16px;
+            background: #353535;
+            color: #d5d5d5;
         }
 
         .modal-content button {
@@ -651,7 +654,7 @@
             text-align: center;
             padding: 20px;
             font-size: 18px;
-            color: #666;
+            color: #b5b5b5;
         }
 
         .loading::after {
@@ -880,8 +883,8 @@
                             </select>
                         </div>
                         <!-- Optional Caffeine Calculator -->
-                        <div style="margin-top: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9fafb;">
-                            <div style="font-size: 13px; color: #666; margin-bottom: 10px; font-style: italic;">
+                        <div style="margin-top: 15px; padding: 15px; border: 1px solid #555; border-radius: 8px; background-color: #353535;">
+                            <div style="font-size: 13px; color: #b5b5b5; margin-bottom: 10px; font-style: italic;">
                                 💡 Optional Caffeine Calculator (auto-fills "Caffeine intake today" above)
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
@@ -939,9 +942,19 @@
                             <span>12</span>
                             <span class="slider-value" id="alcoholValue">0 drinks</span>
                         </div>
-                        <div style="margin-top: 15px;">
-                            <input type="checkbox" id="regularAlcoholCheckbox" onchange="toggleRegularAlcohol()">
-                            <label for="regularAlcoholCheckbox">I regularly consume alcohol</label>
+                        <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="regularAlcoholCheckbox" onchange="toggleRegularAlcohol()" style="width: auto; padding: 0;">
+                            <label for="regularAlcoholCheckbox" style="margin: 0;">I regularly consume alcohol</label>
+                        </div>
+                        <div style="margin-top: 10px; display: flex; gap: 20px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="checkbox" id="redWineCheckbox" onchange="toggleRedWine()" style="width: auto; padding: 0;">
+                                <label for="redWineCheckbox" style="margin: 0; font-size: 14px;">Contains red wine</label>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="checkbox" id="beerCheckbox" onchange="toggleBeer()" style="width: auto; padding: 0;">
+                                <label for="beerCheckbox" style="margin: 0; font-size: 14px;">Contains beer</label>
+                            </div>
                         </div>
                         <div id="alcoholComparisonSection" style="display: none; margin-top: 10px;">
                             <label style="font-size: 14px; margin-bottom: 5px; display: block;">Today's Intake Is</label>
@@ -968,9 +981,9 @@
                             <span style="font-size: 11px;">Heavy</span>
                             <span class="slider-value" id="exerciseValue">None</span>
                         </div>
-                        <div style="margin-top: 15px;">
-                            <input type="checkbox" id="regularExerciseCheckbox" onchange="toggleRegularExercise()">
-                            <label for="regularExerciseCheckbox">I regularly exercise</label>
+                        <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="regularExerciseCheckbox" onchange="toggleRegularExercise()" style="width: auto; padding: 0;">
+                            <label for="regularExerciseCheckbox" style="margin: 0;">I regularly exercise</label>
                         </div>
                         <div id="exerciseComparisonSection" style="display: none; margin-top: 10px;">
                             <label style="font-size: 14px; margin-bottom: 5px; display: block;">Today's Exercise Is</label>
@@ -1060,9 +1073,9 @@
                             <span>12</span>
                             <span class="slider-value" id="marijuanaValue">0 sessions</span>
                         </div>
-                        <div style="margin-top: 15px;">
-                            <input type="checkbox" id="regularMarijuanaCheckbox" onchange="toggleRegularMarijuana()">
-                            <label for="regularMarijuanaCheckbox">I regularly consume marijuana</label>
+                        <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="regularMarijuanaCheckbox" onchange="toggleRegularMarijuana()" style="width: auto; padding: 0;">
+                            <label for="regularMarijuanaCheckbox" style="margin: 0;">I regularly consume marijuana</label>
                         </div>
                         <div id="marijuanaComparisonSection" style="display: none; margin-top: 10px;">
                             <label style="font-size: 14px; margin-bottom: 5px; display: block;">Today's Intake Is</label>
@@ -1175,6 +1188,8 @@
             alcohol: 0,  // 0-12 drinks slider
             regularAlcoholConsumer: false,
             alcoholComparison: 'equal', // less, equal, more, farmore
+            containsRedWine: false,
+            containsBeer: false,
             exercise: 0,  // 0=none, 1=light, 2=moderate, 3=heavy slider
             regularExerciser: false,
             exerciseComparison: 'equal', // less, equal, more, farmore
@@ -1640,6 +1655,16 @@
             if (weatherData) calculateAndDisplayMigraineIndex();
         }
 
+        function toggleRedWine() {
+            userState.containsRedWine = document.getElementById('redWineCheckbox').checked;
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
+        function toggleBeer() {
+            userState.containsBeer = document.getElementById('beerCheckbox').checked;
+            if (weatherData) calculateAndDisplayMigraineIndex();
+        }
+
         function updateExercise(value) {
             const labels = ['None', 'Light', 'Moderate', 'Heavy'];
             userState.exercise = parseInt(value);
@@ -2059,6 +2084,14 @@
                 } else if (comparison === 'farmore') {
                     baseRisk += 30; // FAR more = high risk
                 }
+            }
+
+            // Red wine and beer are bigger triggers due to histamines and tyramine
+            if (userState.containsRedWine) {
+                baseRisk += 15; // Red wine contains histamines, tyramine, tannins
+            }
+            if (userState.containsBeer) {
+                baseRisk += 12; // Beer contains histamines and tyramine
             }
 
             return Math.min(95, Math.max(15, baseRisk));
