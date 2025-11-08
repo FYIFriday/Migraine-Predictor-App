@@ -714,6 +714,10 @@
     </div>
 
     <script>
+        // Configuration - Add your free WeatherAPI.com API key here
+        // Get one at: https://www.weatherapi.com/signup.aspx
+        const WEATHER_API_KEY = 'YOUR_API_KEY_HERE';
+
         // Global state
         let weatherData = null;
         let userState = {
@@ -814,8 +818,17 @@
         }
 
         async function fetchWeatherData(location) {
+            // Check if API key is configured
+            if (WEATHER_API_KEY === 'YOUR_API_KEY_HERE') {
+                document.getElementById('loadingState').innerHTML =
+                    '<div style="color: #ef4444; padding: 20px;">⚠️ Please configure your WeatherAPI.com API key in the HTML file. Get a free key at <a href="https://www.weatherapi.com/signup.aspx" target="_blank" style="color: #2563eb;">WeatherAPI.com</a></div>';
+                return;
+            }
+
             try {
-                const response = await fetch(`/api/weather?location=${encodeURIComponent(location)}`);
+                const response = await fetch(
+                    `https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(location)}&aqi=yes`
+                );
 
                 if (!response.ok) {
                     if (response.status === 400 && location === 'auto:ip') {
