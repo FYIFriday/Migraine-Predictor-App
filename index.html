@@ -388,6 +388,44 @@
             font-style: italic;
         }
 
+        /* Subcategory styles */
+        .factor-subcategories {
+            margin-top: 15px;
+            padding-left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .factor-subcategory {
+            background: #2a2a2a;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #555;
+        }
+
+        .factor-subcategory .factor-name {
+            font-size: 14px;
+            color: #b5b5b5;
+        }
+
+        /* Half-width factor with graph */
+        .factor-split {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .factor-split-left {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .factor-split-right {
+            flex: 1;
+            min-width: 0;
+        }
+
         .factor-header {
             display: flex;
             justify-content: space-between;
@@ -2675,7 +2713,18 @@
                     value: `${current.pressure_mb} mb`,
                     risk: factors.pressure,
                     tooltip: 'Atmospheric pressure changes are strongly associated with migraine onset. Rapid changes (especially drops) are more significant than absolute values.',
-                    filled: true
+                    filled: true,
+                    subcategories: [
+                        {
+                            name: 'Wind Speed',
+                            value: `${current.wind_kph} km/h`,
+                            risk: factors.wind,
+                            tooltip: 'Wind speed helps indicate how QUICKLY barometric changes may be happening. High winds and rapid changes suggest moving weather fronts.',
+                            filled: true,
+                            hasGraph: true,
+                            graphType: 'pressure-12hr'
+                        }
+                    ]
                 },
                 {
                     name: 'Temperature',
@@ -2689,28 +2738,25 @@
                     value: `${current.humidity}%`,
                     risk: factors.humidity,
                     tooltip: 'High humidity (>70%) is associated with 28% higher migraine odds, particularly during warm seasons (April-September).',
-                    filled: true
-                },
-                {
-                    name: 'Air Quality Index',
-                    value: getAQILabel(current.air_quality?.['us-epa-index'] || 1),
-                    risk: factors.aqi,
-                    tooltip: 'Air pollutants (PM2.5, NO2, O3) increase migraine risk by 3-5% per increment. Particulate matter effects are stronger on high-temperature days.',
-                    filled: true
-                },
-                {
-                    name: 'Precipitation',
-                    value: `${current.precip_mm} mm`,
-                    risk: factors.precipitation,
-                    tooltip: 'Precipitation often accompanies pressure changes and weather fronts, which can trigger migraines. The type and intensity matter.',
-                    filled: true
-                },
-                {
-                    name: 'Wind Speed',
-                    value: `${current.wind_kph} km/h`,
-                    risk: factors.wind,
-                    tooltip: 'High winds and rapid wind changes suggest moving weather fronts, which are associated with barometric pressure changes.',
-                    filled: true
+                    filled: true,
+                    subcategories: [
+                        {
+                            name: 'Precipitation',
+                            value: `${current.precip_mm} mm`,
+                            risk: factors.precipitation,
+                            tooltip: 'Precipitation often accompanies pressure changes and weather fronts, which can trigger migraines. The type and intensity matter.',
+                            filled: true,
+                            hasGraph: true,
+                            graphType: 'humidity-precip-dual'
+                        },
+                        {
+                            name: 'Air Quality Index',
+                            value: getAQILabel(current.air_quality?.['us-epa-index'] || 1),
+                            risk: factors.aqi,
+                            tooltip: 'Air pollutants (PM2.5, NO2, O3) increase migraine risk by 3-5% per increment. Particulate matter effects are stronger on high-temperature days.',
+                            filled: true
+                        }
+                    ]
                 },
                 {
                     name: 'Time of Day',
@@ -2798,7 +2844,8 @@
                 }
             ];
 
-            container.innerHTML = factorDisplays.map(factor => {
+            // Helper function to render a single factor (parent or subcategory)
+            const renderFactor = (factor, isSubcategory = false) => {
                 const isSleep = factor.name === 'Sleep Quality';
                 const tooltipText = getFactorTooltip(factor.name, factor.value, weatherData);
                 const pressureTrend = factor.name === 'Barometric Pressure' ? getPressureTrendHTML(weatherData) : '';
@@ -2808,15 +2855,30 @@
                     ? generateSleepBlockScale(userState.sleep, !factor.filled)
                     : `<div class="factor-scale">
                         <div class="factor-marker" style="left: ${factor.risk}%">
-                            ${hasTooltip ? `<div class="factor-marker-tooltip">${tooltipText}</div>` : ''}
+                            ${hasTooltip ? `<div class="factor-marker-tooltip">${tooltipText}${!factor.filled ? '<br><br><em>Set in Advanced Mode</em>' : ''}</div>` : (!factor.filled ? '<div class="factor-marker-tooltip"><em>Set in Advanced Mode</em></div>' : '')}
                         </div>
                        </div>`;
 
                 // Add factor-specific class for styling
                 const factorClass = factor.name.toLowerCase().replace(/\s+/g, '-');
 
-                return `
-                <div class="factor-item factor-${factorClass} ${!factor.filled ? 'greyed-out' : ''}" ${!factor.filled ? 'onclick="openAdvancedMode()"' : ''}>
+                // Generate graph if this factor has one
+                let graphHTML = '';
+                if (factor.hasGraph && weatherData.forecast12hr) {
+                    if (factor.graphType === 'pressure-12hr') {
+                        const pressureData = weatherData.forecast12hr.map(h => ({ value: h.pressure_mb, label: new Date(h.time).getHours() + 'h' }));
+                        graphHTML = generateLineGraph(pressureData, 200, 60, '#4CAF50');
+                    } else if (factor.graphType === 'humidity-precip-dual') {
+                        const humidityData = weatherData.forecast12hr.map(h => ({ value: h.humidity }));
+                        const precipData = weatherData.forecast12hr.map(h => ({ value: h.precip_mm }));
+                        graphHTML = generateDualLineGraph(humidityData, precipData, 'Humidity %', 'Precip mm', '#4CAF50', '#2196F3', 200, 60);
+                    }
+                }
+
+                // Determine if this factor should be split (half-width with graph)
+                const hasSplit = factor.hasGraph && graphHTML;
+
+                const factorContent = `
                     <div class="factor-header">
                         <span class="factor-name">
                             ${factor.name}
@@ -2832,10 +2894,53 @@
                             <div class="factor-value-underline"></div>
                         </div>
                     </div>
-                    ${pressureTrend}
+                    ${isSubcategory ? '' : pressureTrend}
                     ${scaleHTML}
                     ${!factor.filled ? '<div class="factor-prompt">Click to fill out in Advanced Mode</div>' : ''}
-                </div>
+                `;
+
+                if (hasSplit) {
+                    return `
+                        <div class="factor-split">
+                            <div class="factor-split-left">
+                                ${factorContent}
+                            </div>
+                            <div class="factor-split-right">
+                                ${graphHTML}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    return factorContent;
+                }
+            };
+
+            container.innerHTML = factorDisplays.map(factor => {
+                const factorClass = factor.name.toLowerCase().replace(/\s+/g, '-');
+                const mainFactorHTML = renderFactor(factor);
+
+                // Render subcategories if they exist
+                let subcategoriesHTML = '';
+                if (factor.subcategories && factor.subcategories.length > 0) {
+                    subcategoriesHTML = `
+                        <div class="factor-subcategories">
+                            ${factor.subcategories.map(sub => {
+                                const subClass = sub.name.toLowerCase().replace(/\s+/g, '-');
+                                return `
+                                    <div class="factor-subcategory factor-${subClass} ${!sub.filled ? 'greyed-out' : ''}" ${!sub.filled ? 'onclick="openAdvancedMode()"' : ''}>
+                                        ${renderFactor(sub, true)}
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="factor-item factor-${factorClass} ${!factor.filled ? 'greyed-out' : ''}" ${!factor.filled ? 'onclick="openAdvancedMode()"' : ''}>
+                        ${mainFactorHTML}
+                        ${subcategoriesHTML}
+                    </div>
                 `;
             }).join('');
         }
