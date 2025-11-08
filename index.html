@@ -646,6 +646,146 @@
             60%, 100% { content: '...'; }
         }
 
+        /* Mobile Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            /* Stack frequency buttons on mobile */
+            .frequency-options {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .frequency-option {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            /* Adjust migraine index display */
+            .migraine-index {
+                padding: 20px 15px;
+            }
+
+            .migraine-index h2 {
+                font-size: 16px;
+            }
+
+            #indexValue {
+                font-size: 48px;
+            }
+
+            /* Make advanced mode button full width */
+            button {
+                font-size: 14px;
+                padding: 12px;
+            }
+
+            /* Adjust slider containers */
+            .slider-container {
+                font-size: 12px;
+            }
+
+            /* Stack red wine/beer checkboxes */
+            .advanced-item > div[style*="display: flex; gap: 20px"] {
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+
+            /* Adjust caffeine calculator grid */
+            .advanced-item > div[style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* Factor items responsive */
+            .factor-item {
+                margin-bottom: 15px;
+            }
+
+            .factor-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .factor-value-container {
+                margin-top: 5px;
+            }
+
+            /* Tooltips positioning on mobile */
+            .tooltip {
+                width: 200px;
+                font-size: 11px;
+                left: auto;
+                right: 0;
+                transform: none;
+            }
+
+            .info-icon {
+                width: 16px;
+                height: 16px;
+                font-size: 11px;
+                line-height: 16px;
+            }
+
+            /* Modal adjustments */
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .modal-content h2 {
+                font-size: 18px;
+            }
+
+            /* Location display wrapping */
+            .factors-section h2 {
+                flex-wrap: wrap;
+                font-size: 16px;
+            }
+
+            #locationDisplay {
+                display: block;
+                margin-left: 0 !important;
+                margin-top: 5px;
+                font-size: 12px !important;
+            }
+        }
+
+        /* Extra small mobile devices */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 20px;
+            }
+
+            .frequency-option {
+                font-size: 13px;
+                padding: 10px;
+            }
+
+            #indexValue {
+                font-size: 36px;
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            .advanced-item label {
+                font-size: 14px;
+            }
+        }
+
     </style>
 </head>
 <body>
